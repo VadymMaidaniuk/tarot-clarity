@@ -14,6 +14,16 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+### Test on another device in the same Wi-Fi network
+
+```bash
+npm run dev:lan
+```
+
+Then open the `Network` URL printed by Next.js on the other device. The computer
+running the app and the testing device must be connected to the same local
+network.
+
 ### Ollama
 
 The default local endpoint is Ollama's OpenAI-compatible API:
