@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+export const maxDuration = 120;
 
 type Provider = "auto" | "local" | "openrouter" | "demo";
 
@@ -40,7 +41,11 @@ function userFacingError(error: unknown) {
     error.name === "AbortError" ||
     /timeout|timed out|aborted/i.test(error.message)
   ) {
-    return "Модель не встигла відповісти. Перевірте, чи вона завантажена в LM Studio, і спробуйте ще раз.";
+    return "Модель не встигла відповісти. Спробуйте ще раз за кілька хвилин.";
+  }
+
+  if (/429|rate.?limit/i.test(error.message)) {
+    return "Безкоштовна модель OpenRouter зараз перевантажена. Зачекайте кілька хвилин і спробуйте ще раз.";
   }
 
   return error.message;
@@ -152,13 +157,17 @@ function buildPrompt(body: ReadingRequest) {
   ];
 }
 
+function wait(milliseconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
 async function callModel(provider: "local" | "openrouter", body: ReadingRequest) {
   const isOpenRouter = provider === "openrouter";
   const baseUrl = isOpenRouter
     ? "https://openrouter.ai/api/v1"
     : (process.env.LOCAL_LLM_BASE_URL ?? "http://127.0.0.1:11434/v1");
   const model = isOpenRouter
-    ? (process.env.OPENROUTER_MODEL ?? "openai/gpt-4.1-mini")
+    ? (process.env.OPENROUTER_MODEL ?? "google/gemma-4-26b-a4b-it:free")
     : (process.env.LOCAL_LLM_MODEL ?? "llama3.2:3b");
   const apiKey = isOpenRouter
     ? process.env.OPENROUTER_API_KEY
@@ -178,9 +187,8 @@ async function callModel(provider: "local" | "openrouter", body: ReadingRequest)
     throw new Error("OPENROUTER_API_KEY не налаштовано.");
   }
 
-  const response = await fetch(
-    `${baseUrl.replace(/\/$/, "")}/chat/completions`,
-    {
+  const endpoint = `${baseUrl.replace(/\/$/, "")}/chat/completions`;
+  const requestOptions: RequestInit = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -198,20 +206,41 @@ async function callModel(provider: "local" | "openrouter", body: ReadingRequest)
         temperature: isOpenRouter ? 0.6 : 0.35,
         max_tokens: maxTokens,
         stream: false,
-        ...(!isOpenRouter ? { reasoning_effort: "none" } : {}),
+        ...(isOpenRouter
+          ? { reasoning: { enabled: false }, include_reasoning: false }
+          : { reasoning_effort: "none" }),
         response_format: isOpenRouter
           ? { type: "json_object" }
           : { type: "text" },
       }),
       signal: AbortSignal.timeout(timeoutMs),
-    },
-  );
+    };
 
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(
-      `${provider} повернув помилку ${response.status}: ${detail.slice(0, 240)}`,
-    );
+  const attempts = isOpenRouter ? 3 : 1;
+  let response: Response | undefined;
+  let detail = "";
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    response = await fetch(endpoint, requestOptions);
+    if (response.ok) break;
+
+    detail = await response.text();
+    const retryable = [429, 502, 503, 504].includes(response.status);
+    if (!retryable || attempt === attempts) {
+      throw new Error(
+        `${provider} повернув помилку ${response.status}: ${detail.slice(0, 500)}`,
+      );
+    }
+
+    const retryAfter = Number(response.headers.get("retry-after"));
+    const delay = Number.isFinite(retryAfter) && retryAfter > 0
+      ? Math.min(retryAfter * 1_000, 10_000)
+      : attempt * 2_000;
+    await wait(delay);
+  }
+
+  if (!response?.ok) {
+    throw new Error(`${provider} не повернув успішної відповіді.`);
   }
 
   const payload = (await response.json()) as {

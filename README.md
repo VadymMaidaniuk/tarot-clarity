@@ -54,10 +54,17 @@ Add these environment variables to the Vercel project:
 ```env
 LLM_PROVIDER=openrouter
 OPENROUTER_API_KEY=your_server_side_key
-OPENROUTER_MODEL=openai/gpt-4.1-mini
+OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free
 APP_URL=https://your-domain.example
 ALLOW_PROVIDER_OVERRIDE=false
 LLM_FALLBACK_TO_DEMO=false
+```
+
+For a local OpenRouter test, enter the key without placing it in shell history:
+
+```powershell
+npm run configure:openrouter
+npm run dev
 ```
 
 With `LLM_PROVIDER=auto`, the app selects the local adapter outside Vercel and
