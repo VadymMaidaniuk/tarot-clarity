@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AURA | Calm Pause Ritual</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#aeb3bc",
+                    "secondary-container": "#49435e",
+                    "secondary-fixed": "#e7deff",
+                    "secondary-fixed-dim": "#cac2e2",
+                    "error-container": "#93000a",
+                    "primary-fixed": "#ffe088",
+                    "on-tertiary-container": "#40454d",
+                    "inverse-on-surface": "#2d3137",
+                    "surface-tint": "#e9c349",
+                    "on-surface": "#dfe2eb",
+                    "on-tertiary-fixed-variant": "#42474f",
+                    "on-tertiary-fixed": "#171c23",
+                    "tertiary": "#caced8",
+                    "on-secondary-container": "#b9b1d1",
+                    "on-secondary": "#322d46",
+                    "on-background": "#dfe2eb",
+                    "on-secondary-fixed-variant": "#49435e",
+                    "surface-container-highest": "#31353c",
+                    "surface-container": "#1c2026",
+                    "error": "#ffb4ab",
+                    "primary": "#f2ca50",
+                    "surface-bright": "#353940",
+                    "primary-container": "#d4af37",
+                    "on-primary-container": "#554300",
+                    "surface": "#10141a",
+                    "outline": "#99907c",
+                    "surface-container-lowest": "#0a0e14",
+                    "primary-fixed-dim": "#e9c349",
+                    "on-primary-fixed-variant": "#574500",
+                    "inverse-surface": "#dfe2eb",
+                    "on-tertiary": "#2c3138",
+                    "on-primary-fixed": "#241a00",
+                    "tertiary-fixed": "#dee2ec",
+                    "surface-variant": "#31353c",
+                    "surface-dim": "#10141a",
+                    "on-error-container": "#ffdad6",
+                    "outline-variant": "#4d4635",
+                    "on-primary": "#3c2f00",
+                    "inverse-primary": "#735c00",
+                    "surface-container-high": "#262a31",
+                    "surface-container-low": "#181c22",
+                    "on-surface-variant": "#d0c5af",
+                    "on-secondary-fixed": "#1d1830",
+                    "secondary": "#cac2e2",
+                    "background": "#10141a",
+                    "on-error": "#690005",
+                    "tertiary-fixed-dim": "#c2c7d0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "container-padding-mobile": "24px",
+                    "stack-sm": "12px",
+                    "gutter": "16px",
+                    "section-gap": "80px",
+                    "unit": "8px",
+                    "container-padding-desktop": "64px",
+                    "stack-md": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Playfair Display"],
+                    "headline-xl": ["Playfair Display"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Playfair Display"],
+                    "caption": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                    "caption": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0a0e14;
+            color: #dfe2eb;
+            overflow-x: hidden;
+        }
+        .ritual-progress-bar {
+            height: 2px;
+            background: #BDB5D5;
+            box-shadow: 0 0 10px rgba(189, 181, 213, 0.4);
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-container {
+            perspective: 1200px;
+        }
+        .card-inner {
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.6s ease;
+            transform-style: preserve-3d;
+        }
+        .card-inner.selected {
+            transform: translateY(-20px) rotateY(180deg);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+        }
+        .card-back {
+            backface-visibility: hidden;
+            background: linear-gradient(135deg, #1A1F26 0%, #0A0E14 100%);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+        .card-front {
+            backface-visibility: hidden;
+            transform: rotateY(180deg);
+            background: #1A1F26;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+        }
+        .gold-diamond {
+            width: 4px;
+            height: 4px;
+            background-color: #f2ca50;
+            transform: rotate(45deg);
+        }
+        .floating-ritual {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            background: rgba(26, 31, 38, 0.5);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-background">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-container-padding-mobile h-16 bg-background/80 backdrop-blur-xl border-b border-primary/15">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:opacity-80 transition-opacity">close</span>
+</div>
+<div class="font-headline-lg-mobile text-headline-lg-mobile tracking-widest text-primary dark:text-primary-fixed uppercase">AURA</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:opacity-80 transition-opacity">more_vert</span>
+</div>
+</header>
+<!-- Ritual Progress Indicator (Global Token) -->
+<div class="fixed top-16 left-0 w-full z-50 h-px bg-primary/10">
+<div class="ritual-progress-bar w-[33%]" id="ritual-progress"></div>
+</div>
+<main class="min-h-screen pt-32 pb-24 px-container-padding-mobile md:px-container-padding-desktop max-w-[1100px] mx-auto flex flex-col items-center">
+<!-- Header Section -->
+<section class="text-center mb-16 max-w-2xl">
+<h1 class="font-headline-xl text-headline-xl mb-4 text-on-surface">Take a breath.</h1>
+<p class="font-body-lg text-body-lg text-tertiary opacity-80 italic">Hold the situation gently. When you are ready, select three cards from the deck below.</p>
+</section>
+<!-- Dynamic Selection Feedback -->
+<div class="flex flex-col items-center mb-12">
+<div class="flex gap-4 mb-4">
+<span class="font-label-md text-label-md uppercase tracking-widest text-primary" id="counter-text">Choose 3 cards</span>
+</div>
+<div class="flex gap-2" id="selection-dots">
+<div class="w-2 h-2 rounded-full bg-primary/20 transition-colors duration-500"></div>
+<div class="w-2 h-2 rounded-full bg-primary/20 transition-colors duration-500"></div>
+<div class="w-2 h-2 rounded-full bg-primary/20 transition-colors duration-500"></div>
+</div>
+</div>
+<!-- Card Deck (Bento-ish Asymmetric Ritual Layout) -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 w-full max-w-4xl card-container">
+<!-- Card 1 -->
+<div class="card-element h-64 md:h-80 cursor-pointer group" onclick="toggleCard(this)">
+<div class="card-inner w-full h-full relative rounded-xl">
+<div class="card-back absolute inset-0 rounded-xl flex flex-col items-center justify-center p-6 overflow-hidden">
+<div class="absolute inset-0 opacity-10" data-alt="A macro photograph of dark, shimmering ink textures with microscopic gold particles and subtle cosmic patterns, captured with a deep depth of field to emphasize the rich, velvet-like luxury of a mystical ritual surface." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCZJoQPM789PKGvNVituKdVMu-L0bDoMkJQoHbKua9xs3f9zicec6JwOq1smNqG91KQgI-KGmmOsLtCmqD2vUCXG925wtGG-IBw3EdHC7H-3onEuxkwPlKEbaKz_2BkDk64bJm6lgQ466NF7AXjHF4qd97gDT6sy009oDjXBA5BAR9XWl3-9ZUMgLsMbLNFUAHZfi2nYZ0qRtT-1uM2iYDZrnZthyhqQ8FxpHC7u8O-XpBuI3pFjADFeir5MwoYHR9xbPrgSiykBX0')"></div>
+<div class="gold-diamond mb-4 group-hover:scale-125 transition-transform"></div>
+<div class="w-px h-12 bg-primary/30"></div>
+</div>
+<div class="card-front absolute inset-0 rounded-xl flex flex-col items-center justify-center p-6 bg-surface-container">
+<span class="material-symbols-outlined text-primary text-4xl mb-4" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<p class="font-label-md text-label-md text-primary-fixed uppercase tracking-tighter">The Vision</p>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="card-element h-64 md:h-80 cursor-pointer group" onclick="toggleCard(this)">
+<div class="card-inner w-full h-full relative rounded-xl">
+<div class="card-back absolute inset-0 rounded-xl flex flex-col items-center justify-center p-6 overflow-hidden">
+<div class="absolute inset-0 opacity-10" data-alt="Abstract golden foil textures swirling through a void of deep charcoal and midnight blue, resembling celestial smoke or ancient silk in a high-end editorial minimalist style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDhbxBV1qBw8uSSQFgGBln6sPsTuDf88QJBZpwDQoz-sxBBsjNDUuIinx4pobnmTR0HuwzWpw08C_udji3zIjVZMeb-noFD9sQDFeR8JERWOIR49FQPmjgyeQG5ISu2KBtmKTIPbJ00TGyivSJq3XsXNAGY7Vt8D6E5bob3w5x2taRrVOpSVPAs4VlWxDlWiCym_-SShL_HaIDw6SwznGioXHPIHQRhRKFF_qzi-R4TbbfIg0GwC6TevaPERcE_w4izrBhDqmMAuzU')"></div>
+<div class="gold-diamond mb-4 group-hover:scale-125 transition-transform"></div>
+<div class="w-px h-12 bg-primary/30"></div>
+</div>
+<div class="card-front absolute inset-0 rounded-xl flex flex-col items-center justify-center p-6 bg-surface-container">
+<span class="material-symbols-outlined text-primary text-4xl mb-4" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+<p class="font-label-md text-label-md text-primary-fixed uppercase tracking-tighter">The Echo</p>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="card-element h-64 md:h-80 cursor-pointer group" onclick="toggleCard(this)">
+<div class="card-inner w-full h-full relative rounded-xl">
+<div class="card-back absolute inset-0 rounded-xl flex flex-col items-center justify-center p-6 overflow-hidden">
+<div class="absolute inset-0 opacity-10" data-alt="Symmetrical geometric patterns rendered in delicate, thin gold lines against a deep ink black background, creating an atmosphere of sophisticated mysticism and sacred geometry suitable for a meditation app." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCO1QvOQg26H44GnDRpIZuQ_3njmtv3pbnkdvqPF7J41YDIv573JxhPQ3lLvD6n6ekEQOosYD_1iFvvxTQK5b5SZ5JdA7_msoCSWuEFQmgN_W4vqqqd7j5D1LtqUHRX2tO5AK3A0BJSleo9sSe9g5y3CuBQSP_UTHVNnAc1y_16L6qCLQWHda1i440K0mwhZ2NjTlLThIJdEQmxchly51i2gg_pTeX6Cuv7kYOcna4dLxj1E-xzan409YMb2Fwb_u_Tm8xcQiUSLq8')"></div>
+<div class="gold-diamond mb-4 group-hover:scale-125 transition-transform"></div>
+<div class="w-px h-12 bg-primary/30"></div>
+</div>
+<div class="card-front absolute inset-0 rounded-xl flex flex-col items-center justify-center p-6 bg-surface-container">
+<span class="material-symbols-outlined text-primary text-4xl mb-4" style="font-variation-settings: 'FILL' 1;">ac_unit</span>
+<p class="font-label-md text-label-md text-primary-fixed uppercase tracking-tighter">The Stillness</p>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="card-element h-64 md:h-80 cursor-pointer group" onclick="toggleCard(this)">
+<div class="card-inner w-full h-full relative rounded-xl">
+<div class="card-back absolute inset-0 rounded-xl flex flex-col items-center justify-center p-6 overflow-hidden">
+<div class="absolute inset-0 opacity-10" data-alt="A minimalist digital art piece showing soft, ethereal light rays penetrating through a translucent obsidian-like surface, creating a sense of hidden depths and quiet introspection." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCfkZO9KhwIcrsKY-ZAs7CN7emYWc5EA669ni4vziHRYvsFxFtvKzwcyJZ6Q4d8BRR36XzEyX5bPorMJA7v8_HI6gYkUxed-Cel6h5uXGDJhPzVOChEjSqpq7fMVEzBByVQY-fTw9mqxv-uS8rVSPJ-63FxuAY2DiZi-ZMIFwZ2L-b50TmMMvLVOM7OO0yQbMEo8PLVQmFSebRCGpE_DGZ0iYMvo7CkAOGbFGPGA0C35djaQVxLcdFn1XVEv4SxAadCfSZoWcLB9js')"></div>
+<div class="gold-diamond mb-4 group-hover:scale-125 transition-transform"></div>
+<div class="w-px h-12 bg-primary/30"></div>
+</div>
+<div class="card-front absolute inset-0 rounded-xl flex flex-col items-center justify-center p-6 bg-surface-container">
+<span class="material-symbols-outlined text-primary text-4xl mb-4" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<p class="font-label-md text-label-md text-primary-fixed uppercase tracking-tighter">The Root</p>
+</div>
+</div>
+</div>
+<!-- Additional Row to ensure 'Selection' experience -->
+<div class="card-element h-64 md:h-80 cursor-pointer group hidden md:block" onclick="toggleCard(this)">
+<div class="card-inner w-full h-full relative rounded-xl">
+<div class="card-back absolute inset-0 rounded-xl flex flex-col items-center justify-center p-6 overflow-hidden">
+<div class="gold-diamond mb-4 group-hover:scale-125 transition-transform"></div>
+</div>
+<div class="card-front absolute inset-0 rounded-xl flex flex-col items-center justify-center p-6 bg-surface-container">
+<span class="material-symbols-outlined text-primary text-4xl mb-4" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<p class="font-label-md text-label-md text-primary-fixed uppercase tracking-tighter">The Mind</p>
+</div>
+</div>
+</div>
+<div class="card-element h-64 md:h-80 cursor-pointer group hidden md:block" onclick="toggleCard(this)">
+<div class="card-inner w-full h-full relative rounded-xl">
+<div class="card-back absolute inset-0 rounded-xl flex flex-col items-center justify-center p-6 overflow-hidden">
+<div class="gold-diamond mb-4 group-hover:scale-125 transition-transform"></div>
+</div>
+<div class="card-front absolute inset-0 rounded-xl flex flex-col items-center justify-center p-6 bg-surface-container">
+<span class="material-symbols-outlined text-primary text-4xl mb-4" style="font-variation-settings: 'FILL' 1;">public</span>
+<p class="font-label-md text-label-md text-primary-fixed uppercase tracking-tighter">The World</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Button (Conditional Visibility via JS) -->
+<div class="mt-20 opacity-0 pointer-events-none transition-all duration-700 transform translate-y-4" id="ritual-complete-btn">
+<button class="px-12 py-4 border border-primary text-primary font-label-md text-label-md uppercase tracking-widest hover:bg-primary/10 transition-colors group">
+                Begin Reflection 
+                <span class="material-symbols-outlined align-middle ml-2 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</main>
+<!-- Bottom Navigation Shell (Only for Main Destinations - but following JSON structure) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-20 px-gutter pb-safe bg-surface-container-lowest/10 backdrop-blur-lg border-t border-primary/10">
+<div class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed after:content-[''] after:w-1 after:h-1 after:bg-primary after:rounded-full after:mt-1 hover:opacity-80 transition-all duration-300 cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="flex flex-col items-center justify-center text-tertiary dark:text-tertiary-container hover:text-primary-fixed-dim transition-colors duration-300 cursor-pointer">
+<span class="material-symbols-outlined">history_edu</span>
+</div>
+<div class="flex flex-col items-center justify-center text-tertiary dark:text-tertiary-container hover:text-primary-fixed-dim transition-colors duration-300 cursor-pointer">
+<span class="material-symbols-outlined">account_circle</span>
+</div>
+</nav>
+<script>
+        let selectedCount = 0;
+        const maxSelection = 3;
+        const selectedSet = new Set();
+
+        function toggleCard(element) {
+            const inner = element.querySelector('.card-inner');
+            
+            if (inner.classList.contains('selected')) {
+                inner.classList.remove('selected');
+                selectedCount--;
+            } else {
+                if (selectedCount < maxSelection) {
+                    inner.classList.add('selected');
+                    selectedCount++;
+                } else {
+                    // Feedback for max reached
+                    element.classList.add('shake');
+                    setTimeout(() => element.classList.remove('shake'), 400);
+                    return;
+                }
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            const counterText = document.getElementById('counter-text');
+            const progress = document.getElementById('ritual-progress');
+            const dots = document.getElementById('selection-dots').children;
+            const completeBtn = document.getElementById('ritual-complete-btn');
+
+            // Update Counter
+            counterText.textContent = selectedCount === maxSelection ? "Ritual Prepared" : `Choose ${maxSelection - selectedCount} more`;
+            
+            // Update Progress Bar (33% base + 22% per card roughly)
+            const progressWidth = 33 + (selectedCount * 22);
+            progress.style.width = `${progressWidth}%`;
+
+            // Update Dots
+            for (let i = 0; i < dots.length; i++) {
+                if (i < selectedCount) {
+                    dots[i].classList.remove('bg-primary/20');
+                    dots[i].classList.add('bg-primary');
+                } else {
+                    dots[i].classList.add('bg-primary/20');
+                    dots[i].classList.remove('bg-primary');
+                }
+            }
+
+            // Reveal Button
+            if (selectedCount === maxSelection) {
+                completeBtn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+                completeBtn.classList.add('opacity-100', 'translate-y-0');
+            } else {
+                completeBtn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+                completeBtn.classList.remove('opacity-100', 'translate-y-0');
+            }
+        }
+
+        // Add shake animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+            .shake { animation: shake 0.4s ease-in-out; }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body></html>

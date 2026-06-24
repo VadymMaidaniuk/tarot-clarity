@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AURA - The Reveal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0a0e14;
+            color: #dfe2eb;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: linear-gradient(135deg, rgba(26, 31, 38, 0.8) 0%, rgba(10, 14, 20, 0.9) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+        .diamond-bullet {
+            width: 4px;
+            height: 4px;
+            background-color: #d4af37;
+            transform: rotate(45deg);
+        }
+        .ritual-progress-bar {
+            height: 1px;
+            background: #bdb5d5;
+            box-shadow: 0 0 10px rgba(189, 181, 213, 0.3);
+            width: 75%;
+            transition: width 2s ease-in-out;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        .card-glow {
+            position: absolute;
+            inset: -20px;
+            background: radial-gradient(circle, rgba(189, 181, 213, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        /* Custom Scrollbar for side-scrolling cards on mobile */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#aeb3bc",
+                      "secondary-container": "#49435e",
+                      "secondary-fixed": "#e7deff",
+                      "secondary-fixed-dim": "#cac2e2",
+                      "error-container": "#93000a",
+                      "primary-fixed": "#ffe088",
+                      "on-tertiary-container": "#40454d",
+                      "inverse-on-surface": "#2d3137",
+                      "surface-tint": "#e9c349",
+                      "on-surface": "#dfe2eb",
+                      "on-tertiary-fixed-variant": "#42474f",
+                      "on-tertiary-fixed": "#171c23",
+                      "tertiary": "#caced8",
+                      "on-secondary-container": "#b9b1d1",
+                      "on-secondary": "#322d46",
+                      "on-background": "#dfe2eb",
+                      "on-secondary-fixed-variant": "#49435e",
+                      "surface-container-highest": "#31353c",
+                      "surface-container": "#1c2026",
+                      "error": "#ffb4ab",
+                      "primary": "#f2ca50",
+                      "surface-bright": "#353940",
+                      "primary-container": "#d4af37",
+                      "on-primary-container": "#554300",
+                      "surface": "#10141a",
+                      "outline": "#99907c",
+                      "surface-container-lowest": "#0a0e14",
+                      "primary-fixed-dim": "#e9c349",
+                      "on-primary-fixed-variant": "#574500",
+                      "inverse-surface": "#dfe2eb",
+                      "on-tertiary": "#2c3138",
+                      "on-primary-fixed": "#241a00",
+                      "tertiary-fixed": "#dee2ec",
+                      "surface-variant": "#31353c",
+                      "surface-dim": "#10141a",
+                      "on-error-container": "#ffdad6",
+                      "outline-variant": "#4d4635",
+                      "on-primary": "#3c2f00",
+                      "inverse-primary": "#735c00",
+                      "surface-container-high": "#262a31",
+                      "surface-container-low": "#181c22",
+                      "on-surface-variant": "#d0c5af",
+                      "on-secondary-fixed": "#1d1830",
+                      "secondary": "#cac2e2",
+                      "background": "#10141a",
+                      "on-error": "#690005",
+                      "tertiary-fixed-dim": "#c2c7d0"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "container-padding-mobile": "24px",
+                      "stack-sm": "12px",
+                      "gutter": "16px",
+                      "section-gap": "80px",
+                      "unit": "8px",
+                      "container-padding-desktop": "64px",
+                      "stack-md": "24px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": ["Playfair Display"],
+                      "label-md": ["Inter"],
+                      "body-md": ["Inter"],
+                      "headline-md": ["Playfair Display"],
+                      "headline-xl": ["Playfair Display"],
+                      "body-lg": ["Inter"],
+                      "headline-lg": ["Playfair Display"],
+                      "caption": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                      "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                      "caption": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body-md text-body-md-mobile md:text-body-md">
+<!-- Ritual Progress Indicator -->
+<div class="fixed top-0 left-0 w-full z-[60]">
+<div class="ritual-progress-bar"></div>
+</div>
+<!-- Top Navigation -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-container-padding-mobile h-16 bg-background/80 backdrop-blur-xl border-b border-primary/15">
+<button class="text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity duration-300 active:scale-95 transition-transform duration-500">
+<span class="material-symbols-outlined">close</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile tracking-widest text-primary dark:text-primary-fixed">AURA</h1>
+<button class="text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity duration-300 active:scale-95 transition-transform duration-500">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</header>
+<!-- Background Atmospheric Effect -->
+<div class="fixed inset-0 pointer-events-none z-0">
+
+</div>
+<main class="relative z-10 pt-32 pb-32 max-w-[1100px] mx-auto px-container-padding-mobile md:px-container-padding-desktop min-h-screen flex flex-col items-center">
+<!-- Header Section -->
+<div class="text-center mb-16 space-y-4">
+<span class="font-label-md text-label-md text-primary tracking-[0.2em] uppercase">The Revelation</span>
+<h2 class="font-headline-xl text-headline-lg-mobile md:text-headline-xl text-on-surface">Insight of the Moment</h2>
+<div class="w-12 h-[1px] bg-primary mx-auto opacity-50"></div>
+</div>
+<!-- Cards Container -->
+<div class="w-full flex flex-col md:flex-row gap-8 md:gap-6 justify-center items-stretch hide-scrollbar overflow-x-auto snap-x snap-mandatory pb-8">
+<!-- Card 1: Your Inner State -->
+<div class="snap-center shrink-0 w-[85vw] md:w-1/3 max-w-[340px] flex flex-col group">
+<div class="mb-4 text-center">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">1. Your inner state</span>
+</div>
+<div class="glass-card relative p-1 h-full flex flex-col overflow-hidden hover:border-primary/40 transition-colors duration-700 group">
+<div class="card-glow"></div>
+<div class="aspect-[3/4] w-full overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover grayscale-[30%] group-hover:scale-110 transition-transform duration-1000" data-alt="A minimalist, evocative digital painting of an archetype called 'The Echo'. It features a single, distorted golden ripple against a deep indigo and charcoal black background. The style is editorial and moody, with a slight grain texture and a soft, mystical lavender glow emanating from the center. High-end, gallery-style composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOqUuwvQiJqFZcoZzIxnuJMihxwkmgyRfbO41L20MwlB4_xJaTIXHLwP7--7lUfboqBhFfObtn1Vwf5pN4MxmPKPTyzg-dtRNDl-Qv6Prrjfyldn1sZATGdOIfxGVlsDZX29Ww-rAPOl6HnKyXRdZkGtqh3NdVV-4-vKWFWaaGSkiCgY0T5WQjzMZLfdi6XxBgdAxDLJIbRVRQ23xcJMmmxtKIMR6FP8SJk44VoO2cnlEZTd38lrmjLW8ME_MaBvIL5i2wB7pF8s0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent opacity-40"></div>
+</div>
+<div class="px-6 pb-8 text-center flex-grow">
+<h3 class="font-headline-md text-headline-md text-primary mb-2">The Echo</h3>
+<p class="text-on-surface-variant font-body-md italic mb-6">"Reflection and stillness"</p>
+<div class="flex justify-center items-center gap-2">
+<div class="diamond-bullet"></div>
+<span class="text-caption text-on-surface-variant font-label-md tracking-wider">HARMONY</span>
+<div class="diamond-bullet"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2: The Dynamic Between You -->
+<div class="snap-center shrink-0 w-[85vw] md:w-1/3 max-w-[340px] flex flex-col">
+<div class="mb-4 text-center">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">2. The dynamic between you</span>
+</div>
+<div class="glass-card relative p-1 h-full flex flex-col overflow-hidden hover:border-primary/40 transition-colors duration-700 group">
+<div class="card-glow"></div>
+<div class="aspect-[3/4] w-full overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover grayscale-[30%] group-hover:scale-110 transition-transform duration-1000" data-alt="An abstract editorial art piece titled 'The Weave'. Two delicate, translucent golden threads intertwine and diverge in a vast, dark space of deep ink black and muted lavender gradients. The lighting is soft and directional, creating a sense of intimate depth and psychological clarity. Sophisticated and minimalist aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxf8p1oPojNbM4rJqhLNXSp3wUnummWbVDCXtrhgWFzI49Q0DrPE9aOxKraRrxiufs_tfKK9VVOEDkBQoEfoWJJw7XJqRS7c4QV0e09eQPmIgiKVWLyxhDWb_ch6oj9ZqtMcWeRC9iBQIKM8cmHZuZeZRJaERwlpIhxxocYS953qYYH2h-G7WHlKMpnSu7SIr0sr79ch0phsKhVgIdfcBxgsvKJ5gij4m4XUxUjk6QsniT6FJDSUQLckTiIprUtdahr5ro6t7vVkI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent opacity-40"></div>
+</div>
+<div class="px-6 pb-8 text-center flex-grow">
+<h3 class="font-headline-md text-headline-md text-primary mb-2">The Weave</h3>
+<p class="text-on-surface-variant font-body-md italic mb-6">"Interconnected pathways"</p>
+<div class="flex justify-center items-center gap-2">
+<div class="diamond-bullet"></div>
+<span class="text-caption text-on-surface-variant font-label-md tracking-wider">COMPLEXITY</span>
+<div class="diamond-bullet"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 3: A Constructive Next Step -->
+<div class="snap-center shrink-0 w-[85vw] md:w-1/3 max-w-[340px] flex flex-col">
+<div class="mb-4 text-center">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">3. A constructive next step</span>
+</div>
+<div class="glass-card relative p-1 h-full flex flex-col overflow-hidden hover:border-primary/40 transition-colors duration-700 group">
+<div class="card-glow"></div>
+<div class="aspect-[3/4] w-full overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover grayscale-[30%] group-hover:scale-110 transition-transform duration-1000" data-alt="A minimalist digital artwork named 'The Threshold'. A subtle thin line of golden light divides a dark, textured charcoal background from a soft, hazy lavender horizon. The composition is extremely clean and centered, evoking a sense of calm anticipation and quiet mysticism. Editorial, high-end photography style with cinematic lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9x5UTx_fue-64tt5F9N3yZ_r9dycOvhsvfV5E8Q5ew-0OfGFoRok5tVbgwm5gyz7874iLeL73dIzkyFsiBXfIzlfNQMZwfidwwMPBQnPD7TuVP2FTJKpuCAOUJ_iF_qNNfGiKCqWLZYitznaO0CPjIa2w2Vuj_8sv3rt0fn7fPcn1U3QW-NszwEiR9sADXHVtQiBVO4iWEEtBaowKwkZLZ6c1zJfQvS9U1GOvx2cVqlc_2keFRBgnVPYNtWM5lnhRzNennArwCyo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent opacity-40"></div>
+</div>
+<div class="px-6 pb-8 text-center flex-grow">
+<h3 class="font-headline-md text-headline-md text-primary mb-2">The Threshold</h3>
+<p class="text-on-surface-variant font-body-md italic mb-6">"A new opening awaits"</p>
+<div class="flex justify-center items-center gap-2">
+<div class="diamond-bullet"></div>
+<span class="text-caption text-on-surface-variant font-label-md tracking-wider">ACTION</span>
+<div class="diamond-bullet"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main CTA -->
+<div class="mt-16 mb-24 w-full max-w-[300px]">
+<button class="w-full py-4 border border-primary text-primary font-label-md uppercase tracking-[0.2em] transition-all duration-500 hover:bg-primary/10 active:scale-95 bg-transparent">
+                See full reflection
+            </button>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-20 px-gutter pb-safe bg-surface-container-lowest/10 backdrop-blur-lg border-t border-primary/10">
+<button class="flex flex-col items-center justify-center text-tertiary dark:text-tertiary-container hover:text-primary-fixed-dim transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed after:content-[''] after:w-1 after:h-1 after:bg-primary after:rounded-full after:mt-1 hover:text-primary-fixed-dim transition-colors duration-300 active:scale-90 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="history_edu" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+</button>
+<button class="flex flex-col items-center justify-center text-tertiary dark:text-tertiary-container hover:text-primary-fixed-dim transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</nav>
+<script>
+        // Micro-interaction: Reveal cards sequentially
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.glass-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 1.2s cubic-bezier(0.22, 1, 0.36, 1)';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 400 + (index * 300));
+            });
+            
+            // Progress bar animation simulation
+            setTimeout(() => {
+                document.querySelector('.ritual-progress-bar').style.width = '100%';
+            }, 500);
+        });
+
+        // Horizontal scroll momentum effect for cards on mobile
+        const scrollContainer = document.querySelector('.overflow-x-auto');
+        if (scrollContainer) {
+            scrollContainer.addEventListener('scroll', () => {
+                const center = scrollContainer.scrollLeft + scrollContainer.offsetWidth / 2;
+                document.querySelectorAll('.glass-card').forEach((card) => {
+                    const cardCenter = card.parentElement.offsetLeft + card.parentElement.offsetWidth / 2;
+                    const dist = Math.abs(center - cardCenter);
+                    const scale = Math.max(0.95, 1 - (dist / 1000));
+                    const opacity = Math.max(0.6, 1 - (dist / 1200));
+                    card.style.transform = `scale(${scale})`;
+                    card.style.opacity = opacity;
+                });
+            });
+        }
+    </script>
+</body></html>

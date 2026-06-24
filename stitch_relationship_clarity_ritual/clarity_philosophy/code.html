@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AURA | Safety &amp; Expectations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#aeb3bc",
+                    "secondary-container": "#49435e",
+                    "secondary-fixed": "#e7deff",
+                    "secondary-fixed-dim": "#cac2e2",
+                    "error-container": "#93000a",
+                    "primary-fixed": "#ffe088",
+                    "on-tertiary-container": "#40454d",
+                    "inverse-on-surface": "#2d3137",
+                    "surface-tint": "#e9c349",
+                    "on-surface": "#dfe2eb",
+                    "on-tertiary-fixed-variant": "#42474f",
+                    "on-tertiary-fixed": "#171c23",
+                    "tertiary": "#caced8",
+                    "on-secondary-container": "#b9b1d1",
+                    "on-secondary": "#322d46",
+                    "on-background": "#dfe2eb",
+                    "on-secondary-fixed-variant": "#49435e",
+                    "surface-container-highest": "#31353c",
+                    "surface-container": "#1c2026",
+                    "error": "#ffb4ab",
+                    "primary": "#f2ca50",
+                    "surface-bright": "#353940",
+                    "primary-container": "#d4af37",
+                    "on-primary-container": "#554300",
+                    "surface": "#10141a",
+                    "outline": "#99907c",
+                    "surface-container-lowest": "#0a0e14",
+                    "primary-fixed-dim": "#e9c349",
+                    "on-primary-fixed-variant": "#574500",
+                    "inverse-surface": "#dfe2eb",
+                    "on-tertiary": "#2c3138",
+                    "on-primary-fixed": "#241a00",
+                    "tertiary-fixed": "#dee2ec",
+                    "surface-variant": "#31353c",
+                    "surface-dim": "#10141a",
+                    "on-error-container": "#ffdad6",
+                    "outline-variant": "#4d4635",
+                    "on-primary": "#3c2f00",
+                    "inverse-primary": "#735c00",
+                    "surface-container-high": "#262a31",
+                    "surface-container-low": "#181c22",
+                    "on-surface-variant": "#d0c5af",
+                    "on-secondary-fixed": "#1d1830",
+                    "secondary": "#cac2e2",
+                    "background": "#10141a",
+                    "on-error": "#690005",
+                    "tertiary-fixed-dim": "#c2c7d0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "container-padding-mobile": "24px",
+                    "stack-sm": "12px",
+                    "gutter": "16px",
+                    "section-gap": "80px",
+                    "unit": "8px",
+                    "container-padding-desktop": "64px",
+                    "stack-md": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Playfair Display"],
+                    "headline-xl": ["Playfair Display"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Playfair Display"],
+                    "caption": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                    "caption": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0a0e14;
+            color: #dfe2eb;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .glass-panel {
+            background: linear-gradient(180deg, rgba(26, 31, 38, 0.4) 0%, rgba(10, 14, 20, 0.2) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .ritual-progress-bar {
+            height: 1px;
+            background: #BDB5D5;
+            width: 40%; /* Progress state for Screen 2 */
+            transition: width 1s ease-in-out;
+        }
+
+        @keyframes subtle-glow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.05); }
+        }
+
+        .ethereal-glow {
+            filter: blur(80px);
+            background: radial-gradient(circle, rgba(189, 181, 213, 0.08) 0%, transparent 70%);
+            animation: subtle-glow 8s infinite ease-in-out;
+        }
+
+        .diamond-bullet::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            background-color: #f2ca50;
+            transform: rotate(45deg);
+            margin-right: 12px;
+            margin-bottom: 2px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md overflow-x-hidden selection:bg-primary/20">
+<!-- Ritual Progress Indicator -->
+<div class="fixed top-0 left-0 w-full z-[60] h-[1px] bg-white/5">
+<div class="ritual-progress-bar"></div>
+</div>
+<!-- Background Atmospheric Elements -->
+<div class="fixed inset-0 pointer-events-none z-0">
+<div class="ethereal-glow absolute top-[-10%] left-[-10%] w-[60%] h-[60%]"></div>
+<div class="ethereal-glow absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%]" style="animation-delay: -4s;"></div>
+
+</div>
+<!-- Top Navigation Bar (Shared Component Logic - Suppression Check: Sub-page) -->
+<!-- Nav is suppressed as this is a focused task/expectation screen -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-container-padding-mobile h-16 bg-background/0">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary/40 cursor-pointer hover:text-primary transition-colors" data-icon="close">close</span>
+</div>
+<div class="font-headline-lg-mobile text-headline-lg-mobile tracking-widest text-primary/20 select-none">AURA</div>
+<div class="w-6"></div> <!-- Spacer for balance -->
+</header>
+<main class="flex-grow flex flex-col items-center justify-center px-container-padding-mobile relative z-10 pt-16 pb-24">
+<div class="max-w-[1100px] w-full flex flex-col items-center">
+<!-- Central Visual Anchor -->
+<div class="mb-stack-md opacity-80">
+<div class="w-[1px] h-16 bg-gradient-to-b from-transparent via-primary/30 to-transparent mx-auto"></div>
+</div>
+<!-- Content Container -->
+<section class="text-center space-y-stack-md animate-in fade-in slide-in-from-bottom-4 duration-1000">
+<h1 class="font-headline-xl text-headline-xl text-on-surface mb-stack-sm tracking-tight">
+                    Clarity, <span class="italic font-normal opacity-60">not prophecy.</span>
+</h1>
+<div class="max-w-xl mx-auto space-y-6">
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                        This is not a prediction of their feelings or future. It is a guided reflection for what you can notice and choose.
+                    </p>
+<!-- Reflective Points -->
+<ul class="pt-8 space-y-4 text-left max-w-sm mx-auto">
+<li class="diamond-bullet font-label-md text-label-md text-tertiary uppercase tracking-wider">Internal Sovereignty</li>
+<li class="diamond-bullet font-label-md text-label-md text-tertiary uppercase tracking-wider">Psychological Depth</li>
+<li class="diamond-bullet font-label-md text-label-md text-tertiary uppercase tracking-wider">Intentional Action</li>
+</ul>
+</div>
+<!-- Primary Call to Action -->
+<div class="pt-16">
+<button class="group relative px-12 py-4 border border-primary/40 hover:border-primary transition-all duration-500 overflow-hidden bg-transparent active:scale-95">
+<div class="absolute inset-0 bg-primary/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+<span class="relative font-label-md text-label-md text-primary tracking-widest uppercase">I understand</span>
+</button>
+</div>
+</section>
+<!-- Atmospheric Image Element -->
+<div class="mt-section-gap w-full max-w-4xl aspect-[21/9] rounded-xl overflow-hidden glass-panel relative group">
+<img class="w-full h-full object-cover opacity-40 group-hover:opacity-50 transition-opacity duration-1000" data-alt="A serene and minimalist cinematic wide shot of a solitary figure standing in a vast, dark architectural space. Soft, golden light beams filter through high, narrow slits in the ceiling, creating long shadows and illuminating dust particles in the air. The scene is dominated by deep obsidian and charcoal tones, with the golden light acting as the primary focal point. The mood is deeply introspective, quiet, and sophisticated, mirroring an editorial minimalism aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfWk49V_LYmwSviIQmPu5Msi9NuVu6TwXV-3ZUgDI2rTYgHTnVin9lwKkhO0I65G4hs5ZqOZRWRplL3ZufKYXqFQaokGJmKv9BtXmCiFjDnqwWW39HjA4PPaPCxe0y96pCBUrvKrb_gVzsokyXy1Z3ePZgYKTM1KjOYMluLKso3ODwRMpTE1y1yXthltp02ncaHm2L8cYjoWhOjktSzwzQSm6qGHJ26uIexUC3srN-lRCTVNivUA9mzQu5hUdXtMCmL61nKJgM-ZU"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+</div>
+</div>
+</main>
+<!-- Footer Area -->
+<footer class="w-full py-8 px-container-padding-mobile border-t border-primary/5 relative z-10">
+<div class="max-w-[1100px] mx-auto flex flex-col md:flex-row justify-between items-center gap-gutter">
+<div class="flex gap-stack-md">
+<a class="font-label-md text-label-md text-tertiary hover:text-primary transition-colors duration-300" href="#">Privacy Policy</a>
+<a class="font-label-md text-label-md text-tertiary hover:text-primary transition-colors duration-300" href="#">Terms of Service</a>
+</div>
+<div class="font-caption text-caption text-on-surface-variant/40 tracking-[0.2em] uppercase">
+                © 2024 Aura Collective
+            </div>
+</div>
+</footer>
+<!-- Ritual Interactivity Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Subtle parallax effect on mouse move
+            document.addEventListener('mousemove', (e) => {
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                
+                const glows = document.querySelectorAll('.ethereal-glow');
+                glows.forEach((glow, index) => {
+                    const factor = (index + 1) * 20;
+                    glow.style.transform = `translate(${(x - 0.5) * factor}px, ${(y - 0.5) * factor}px)`;
+                });
+            });
+
+            // Smooth entrance for page elements
+            const elements = document.querySelectorAll('main > *');
+            elements.forEach((el, i) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(10px)';
+                setTimeout(() => {
+                    el.style.transition = 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, i * 200 + 300);
+            });
+        });
+    </script>
+</body></html>

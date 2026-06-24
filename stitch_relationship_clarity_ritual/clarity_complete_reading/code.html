@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AURA | Your Personalized Reflection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#aeb3bc",
+                    "secondary-container": "#49435e",
+                    "secondary-fixed": "#e7deff",
+                    "secondary-fixed-dim": "#cac2e2",
+                    "error-container": "#93000a",
+                    "primary-fixed": "#ffe088",
+                    "on-tertiary-container": "#40454d",
+                    "inverse-on-surface": "#2d3137",
+                    "surface-tint": "#e9c349",
+                    "on-surface": "#dfe2eb",
+                    "on-tertiary-fixed-variant": "#42474f",
+                    "on-tertiary-fixed": "#171c23",
+                    "tertiary": "#caced8",
+                    "on-secondary-container": "#b9b1d1",
+                    "on-secondary": "#322d46",
+                    "on-background": "#dfe2eb",
+                    "on-secondary-fixed-variant": "#49435e",
+                    "surface-container-highest": "#31353c",
+                    "surface-container": "#1c2026",
+                    "error": "#ffb4ab",
+                    "primary": "#f2ca50",
+                    "surface-bright": "#353940",
+                    "primary-container": "#d4af37",
+                    "on-primary-container": "#554300",
+                    "surface": "#10141a",
+                    "outline": "#99907c",
+                    "surface-container-lowest": "#0a0e14",
+                    "primary-fixed-dim": "#e9c349",
+                    "on-primary-fixed-variant": "#574500",
+                    "inverse-surface": "#dfe2eb",
+                    "on-tertiary": "#2c3138",
+                    "on-primary-fixed": "#241a00",
+                    "tertiary-fixed": "#dee2ec",
+                    "surface-variant": "#31353c",
+                    "surface-dim": "#10141a",
+                    "on-error-container": "#ffdad6",
+                    "outline-variant": "#4d4635",
+                    "on-primary": "#3c2f00",
+                    "inverse-primary": "#735c00",
+                    "surface-container-high": "#262a31",
+                    "surface-container-low": "#181c22",
+                    "on-surface-variant": "#d0c5af",
+                    "on-secondary-fixed": "#1d1830",
+                    "secondary": "#cac2e2",
+                    "background": "#10141a",
+                    "on-error": "#690005",
+                    "tertiary-fixed-dim": "#c2c7d0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "container-padding-mobile": "24px",
+                    "stack-sm": "12px",
+                    "gutter": "16px",
+                    "section-gap": "80px",
+                    "unit": "8px",
+                    "container-padding-desktop": "64px",
+                    "stack-md": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Playfair Display"],
+                    "headline-xl": ["Playfair Display"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Playfair Display"],
+                    "caption": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                    "caption": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0a0e14;
+            color: #dfe2eb;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(26, 31, 38, 0.4) 0%, rgba(10, 14, 20, 0.4) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        .glow-subtle {
+            box-shadow: 0 0 80px -10px rgba(189, 181, 213, 0.05);
+        }
+        .diamond-list {
+            list-style: none;
+        }
+        .diamond-list li::before {
+            content: '◆';
+            color: #d4af37;
+            font-size: 8px;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
+        .ritual-progress {
+            height: 1px;
+            background: #bdb5d5;
+            width: 85%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body-md text-on-surface overflow-x-hidden">
+<!-- Ritual Progress Bar -->
+<div class="ritual-progress opacity-40"></div>
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-container-padding-mobile h-16 bg-background/80 backdrop-blur-xl border-b border-primary/15">
+<button class="text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity duration-300 active:scale-95 transition-transform duration-500">
+<span class="material-symbols-outlined">close</span>
+</button>
+<span class="font-headline-lg-mobile text-headline-lg-mobile tracking-widest text-primary dark:text-primary-fixed uppercase">AURA</span>
+<button class="text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity duration-300 active:scale-95 transition-transform duration-500">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</header>
+<main class="relative min-h-screen pt-32 pb-40 flex flex-col items-center">
+<!-- Background Atmospheric Element -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden">
+
+</div>
+<!-- Content Canvas -->
+<div class="relative z-10 w-full max-w-[1100px] px-container-padding-mobile md:px-container-padding-desktop flex flex-col items-center">
+<!-- Hero Section -->
+<section class="text-center mb-section-gap max-w-2xl">
+<h1 class="font-headline-xl text-headline-lg-mobile md:text-headline-xl text-on-surface mb-stack-md leading-tight">
+                    Your Personalized Reflection.
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant opacity-80 leading-relaxed">
+                    Receive a deep-dive analysis of your three cards, tailored to your situation.
+                </p>
+</section>
+<!-- Grid Content -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-stack-md w-full mb-section-gap">
+<!-- Visual Anchor -->
+<div class="md:col-span-5 flex justify-center items-center">
+<div class="relative w-full aspect-[4/5] glass-panel rounded-lg overflow-hidden flex items-center justify-center p-8 glow-subtle">
+<img class="w-full h-full object-cover opacity-60 rounded" data-alt="A moody, high-end editorial photograph of three tarot-style cards laid out on a dark silk surface. The lighting is low and atmospheric, with a single warm glow highlighting the intricate gold foil illustrations on the cards. The background is a deep ink-black with soft lavender light refractions, creating a sense of quiet mysticism and psychological depth." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAU1-8RfGDZHQRT9KTprFEgzXar0tLBE5Q5u6AkQKhLBsEm51OGYjINzQzI7sr9MReQfHiz4WF65qrgqYCy-OLY7jtDIMmqPlNbAltHqjOvOx90e5waCx6uyaFw32tNLPUi_DkYa4_wnc3CvaJT_0HXmW3zKNfm1EdACZGHtAZyzzmEs3BoOiq4OVH5NnRpnyNOE4v13bsb_sLrhfDM3-HAjuVD1ToTAz3CBDD5aJ_TS1IeFBTs60-gk6_3JkspWLRdn3NoHkBzgs4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent opacity-80"></div>
+<div class="absolute bottom-8 left-8 right-8">
+<span class="font-label-md text-label-md text-primary tracking-widest block mb-1">THE SPREAD</span>
+<span class="font-headline-md text-headline-md text-on-surface italic">A Journey of Clarity</span>
+</div>
+</div>
+</div>
+<!-- Purchase Details -->
+<div class="md:col-span-7 flex flex-col justify-center">
+<div class="glass-panel p-stack-md md:p-12 rounded-xl border-primary/5">
+<div class="mb-stack-md">
+<span class="font-label-md text-label-md text-primary-container border-b border-primary-container/30 pb-1 uppercase tracking-[0.2em]">The Insight Package</span>
+<h2 class="font-headline-md text-headline-md text-on-surface mt-4">Psychological Alignment</h2>
+</div>
+<ul class="diamond-list space-y-4 mb-10 text-on-surface-variant">
+<li class="font-body-md text-body-md">Detailed archetype meanings specific to your query.</li>
+<li class="font-body-md text-body-md">Psychological insights into subconscious motivations.</li>
+<li class="font-body-md text-body-md">Actionable advice for navigating your current path.</li>
+<li class="font-body-md text-body-md">A downloadable ritual guide for continued reflection.</li>
+</ul>
+<div class="border-t border-primary/10 pt-8 mb-8">
+<div class="flex justify-between items-baseline mb-2">
+<span class="font-headline-md text-headline-md text-on-surface">$9.00</span>
+<span class="font-label-md text-label-md text-on-surface-variant opacity-60">One-time purchase</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant italic">No subscriptions, no hidden fees.</p>
+</div>
+<button class="w-full py-4 border border-primary text-primary hover:bg-primary/10 transition-all duration-500 font-label-md text-label-md tracking-widest uppercase active:scale-95 group relative overflow-hidden">
+<span class="relative z-10">Unlock my reflection</span>
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</button>
+</div>
+</div>
+</div>
+<!-- Subtle Trust Element -->
+<section class="max-w-xl text-center pb-20 border-t border-primary/5 pt-12">
+<p class="font-body-md text-body-md italic text-on-surface-variant opacity-50 px-6">
+                    "This analysis serves as a mirror to your own wisdom, structured through the lens of analytical psychology and ancient symbolism."
+                </p>
+</section>
+</div>
+</main>
+<!-- Navigation Shell (Suppressed for transactional focus per instructions, but kept for context if needed - though instruction mandates suppression for transactional. Implementing minimalist version or removing if required. Instruction says "You MUST exclude the navigation shell if the page intent is: Linear/Transactional". I will follow that but provide the BottomNavBar as hidden on mobile if it were a top level.) -->
+<!-- Interaction Script -->
+<script>
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.style.transform = 'scale(0.98)';
+            });
+            button.addEventListener('mouseup', () => {
+                button.style.transform = 'scale(1)';
+            });
+        });
+
+        // Atmospheric micro-interaction
+        window.addEventListener('mousemove', (e) => {
+            const glow = document.querySelector('.glow-subtle');
+            if (glow) {
+                const rect = glow.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                glow.style.setProperty('--mouse-x', `${x}px`);
+                glow.style.setProperty('--mouse-y', `${y}px`);
+            }
+        });
+    </script>
+</body></html>

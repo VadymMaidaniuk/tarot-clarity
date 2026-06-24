@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AURA | Emotional Clarity Ritual</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=Playfair+Display:ital,wght@0,400;0,500;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#aeb3bc",
+                    "secondary-container": "#49435e",
+                    "secondary-fixed": "#e7deff",
+                    "secondary-fixed-dim": "#cac2e2",
+                    "error-container": "#93000a",
+                    "primary-fixed": "#ffe088",
+                    "on-tertiary-container": "#40454d",
+                    "inverse-on-surface": "#2d3137",
+                    "surface-tint": "#e9c349",
+                    "on-surface": "#dfe2eb",
+                    "on-tertiary-fixed-variant": "#42474f",
+                    "on-tertiary-fixed": "#171c23",
+                    "tertiary": "#caced8",
+                    "on-secondary-container": "#b9b1d1",
+                    "on-secondary": "#322d46",
+                    "on-background": "#dfe2eb",
+                    "on-secondary-fixed-variant": "#49435e",
+                    "surface-container-highest": "#31353c",
+                    "surface-container": "#1c2026",
+                    "error": "#ffb4ab",
+                    "primary": "#f2ca50",
+                    "surface-bright": "#353940",
+                    "primary-container": "#d4af37",
+                    "on-primary-container": "#554300",
+                    "surface": "#10141a",
+                    "outline": "#99907c",
+                    "surface-container-lowest": "#0a0e14",
+                    "primary-fixed-dim": "#e9c349",
+                    "on-primary-fixed-variant": "#574500",
+                    "inverse-surface": "#dfe2eb",
+                    "on-tertiary": "#2c3138",
+                    "on-primary-fixed": "#241a00",
+                    "tertiary-fixed": "#dee2ec",
+                    "surface-variant": "#31353c",
+                    "surface-dim": "#10141a",
+                    "on-error-container": "#ffdad6",
+                    "outline-variant": "#4d4635",
+                    "on-primary": "#3c2f00",
+                    "inverse-primary": "#735c00",
+                    "surface-container-high": "#262a31",
+                    "surface-container-low": "#181c22",
+                    "on-surface-variant": "#d0c5af",
+                    "on-secondary-fixed": "#1d1830",
+                    "secondary": "#cac2e2",
+                    "background": "#10141a",
+                    "on-error": "#690005",
+                    "tertiary-fixed-dim": "#c2c7d0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "container-padding-mobile": "24px",
+                    "stack-sm": "12px",
+                    "gutter": "16px",
+                    "section-gap": "80px",
+                    "unit": "8px",
+                    "container-padding-desktop": "64px",
+                    "stack-md": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Playfair Display"],
+                    "headline-xl": ["Playfair Display"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Playfair Display"],
+                    "caption": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "400"}],
+                    "caption": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0a0e14;
+            color: #dfe2eb;
+            overflow-x: hidden;
+        }
+        .ritual-progress {
+            height: 1px;
+            background: #cac2e2;
+            width: 0%;
+            transition: width 2s ease-in-out;
+        }
+        .glass-container {
+            backdrop-filter: blur(16px);
+            background: linear-gradient(180deg, rgba(26, 31, 38, 0.4) 0%, rgba(10, 14, 20, 0.4) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        .diamond-bullet::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            background-color: #d4af37;
+            transform: rotate(45deg);
+            margin-right: 12px;
+            margin-bottom: 2px;
+        }
+        .lavender-glow {
+            box-shadow: 0 0 80px 10px rgba(189, 181, 213, 0.05);
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body-md selection:bg-primary/30">
+<!-- Ritual Progress Indicator -->
+<div class="fixed top-0 left-0 w-full z-[60]">
+<div class="ritual-progress" id="topProgress"></div>
+</div>
+<!-- Top Navigation -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-container-padding-mobile h-16 bg-background/80 backdrop-blur-xl border-b border-primary/15">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-primary hover:opacity-80 transition-opacity duration-300 cursor-pointer active:scale-95 transition-transform duration-500">close</span>
+</div>
+<div class="font-headline-lg-mobile text-headline-lg-mobile tracking-widest text-primary">AURA</div>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-primary hover:opacity-80 transition-opacity duration-300 cursor-pointer active:scale-95 transition-transform duration-500">more_vert</span>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="relative min-h-screen flex flex-col items-center justify-center pt-16 pb-20 px-container-padding-mobile overflow-hidden">
+<!-- Atmospheric Background -->
+<div class="absolute inset-0 z-0">
+
+<div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-secondary-container/10 rounded-full blur-[120px] lavender-glow"></div>
+</div>
+<!-- Editorial Content -->
+<div class="relative z-10 max-w-[1100px] w-full flex flex-col items-center text-center space-y-section-gap">
+<section class="flex flex-col items-center space-y-stack-md">
+<div class="flex items-center space-y-unit">
+<span class="font-label-md text-label-md text-secondary tracking-[0.2em] uppercase">The Inner Sanctuary</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface max-w-2xl leading-tight">
+                    When you keep replaying <br/>
+<span class="italic font-normal text-primary/90 block mt-2">their last message.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-tertiary-container max-w-lg mt-stack-md">
+                    Move from overthinking to clarity. A guided ritual for the heart, not a prophecy of the future.
+                </p>
+</section>
+<!-- Interaction Card (Ritual Entry) -->
+<section class="w-full max-w-md">
+<div class="glass-container p-stack-md rounded-xl space-y-stack-md">
+<div class="space-y-unit text-left">
+<label class="font-label-md text-label-md text-secondary uppercase border-b border-secondary/20 pb-1 inline-block">Reflective Focus</label>
+<div class="h-12 flex items-center border-b border-secondary/30 transition-colors focus-within:border-primary">
+<input class="bg-transparent border-none focus:ring-0 w-full text-on-surface placeholder:text-surface-variant font-body-md" placeholder="What weighs on you tonight?" type="text"/>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 pt-2">
+<span class="font-label-md text-label-md text-secondary border-b border-secondary/40 px-1 py-1 cursor-pointer hover:border-primary transition-colors">anxiety</span>
+<span class="font-label-md text-label-md text-secondary border-b border-secondary/40 px-1 py-1 cursor-pointer hover:border-primary transition-colors">longing</span>
+<span class="font-label-md text-label-md text-secondary border-b border-secondary/40 px-1 py-1 cursor-pointer hover:border-primary transition-colors">silence</span>
+</div>
+<button class="w-full py-4 px-6 border border-primary text-primary font-label-md tracking-widest uppercase hover:bg-primary/10 active:scale-[0.98] transition-all duration-300">
+                        Get clarity
+                    </button>
+</div>
+</section>
+<!-- Editorial Quote / List -->
+<section class="w-full max-w-xl text-left border-t border-primary/10 pt-stack-md">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div class="space-y-stack-sm">
+<div class="font-label-md text-label-md text-primary flex items-center">
+<span class="material-symbols-outlined mr-2 text-[18px]">auto_awesome</span>
+                            Intentional Space
+                        </div>
+<ul class="space-y-4 pt-2">
+<li class="font-body-md text-tertiary diamond-bullet">Private, non-judgmental analysis of interpersonal dynamics.</li>
+<li class="font-body-md text-tertiary diamond-bullet">Grounded psychological insights paired with ancient ritual.</li>
+</ul>
+</div>
+<div class="relative h-48 rounded-lg overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent z-10"></div>
+<img class="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000" data-alt="A highly aesthetic, minimalist high-end editorial photograph of a single hand-poured candle flame in a dark, atmospheric stone room with deep shadows and subtle golden reflections on a dark water surface, quiet mysticism style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqS8QvlsiUhH2EDvK7uqD-F7bFXxhIi-EJuiNykqdUZtYFp1UxZqzfDl6dXS620sY4NbMyHzg4ym26KpApHjjQ_Fe353QslTVrynpH6cHVRdrUKYjrTgRooYSH3GaxXk-RQNO4LwYmiNZuFWQ1dDyCCxqMJTTaO_2n6tJuHYVr8IBHjfNGkUIbgdPCqhqCUsy3BKmHlbhTIjnCcK5OEa5qtcibaYxj6QP4tshVb5w-h0QB3SEtP5l5o7Ax9AFkv_7sfqzZGE3D8ek"/>
+</div>
+</div>
+</section>
+</div>
+<!-- Decorative Elements -->
+<div class="absolute bottom-10 left-10 opacity-20 floating">
+<span class="material-symbols-outlined text-primary text-6xl" style="font-variation-settings: 'wght' 100;">flare</span>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-20 px-gutter pb-safe bg-surface-container-lowest/10 backdrop-blur-lg border-t border-primary/10">
+<button class="flex flex-col items-center justify-center text-primary after:content-[''] after:w-1 after:h-1 after:bg-primary after:rounded-full after:mt-1 active:scale-90 transition-all duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-label-md text-label-md">Explore</span>
+</button>
+<button class="flex flex-col items-center justify-center text-tertiary hover:text-primary-fixed-dim transition-colors duration-300 active:scale-90 transition-all duration-300">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="font-label-md text-label-md">Archive</span>
+</button>
+<button class="flex flex-col items-center justify-center text-tertiary hover:text-primary-fixed-dim transition-colors duration-300 active:scale-90 transition-all duration-300">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-md text-label-md">Being</span>
+</button>
+</nav>
+<script>
+        // Micro-interaction: Progress bar simulation
+        window.addEventListener('load', () => {
+            const bar = document.getElementById('topProgress');
+            setTimeout(() => {
+                bar.style.width = '35%';
+            }, 500);
+        });
+
+        // Interactive subtle hover effect on glass container
+        const glass = document.querySelector('.glass-container');
+        if (glass) {
+            glass.addEventListener('mousemove', (e) => {
+                const rect = glass.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                glass.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(212, 175, 55, 0.05) 0%, rgba(26, 31, 38, 0.4) 50%, rgba(10, 14, 20, 0.4) 100%)`;
+            });
+            glass.addEventListener('mouseleave', () => {
+                glass.style.background = `linear-gradient(180deg, rgba(26, 31, 38, 0.4) 0%, rgba(10, 14, 20, 0.4) 100%)`;
+            });
+        }
+    </script>
+</body></html>
