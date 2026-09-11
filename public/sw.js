@@ -1,18 +1,12 @@
-const CACHE = "aura-v1";
+const CACHE = "aura-v2";
 const SHELL = [
   "/",
   "/manifest.webmanifest",
   "/icons/aura.svg",
+  "/icons/aura-180.png",
   "/icons/aura-192.png",
   "/icons/aura-512.png",
-  "/images/candle.jpg",
-  "/images/card-echo.jpg",
-  "/images/card-weave.jpg",
-  "/images/card-threshold.jpg",
-  "/images/texture-ink.jpg",
-  "/images/texture-foil.jpg",
-  "/images/texture-geometry.jpg",
-  "/images/texture-light.jpg"
+  "/icons/aura-512-maskable.png",
 ];
 
 self.addEventListener("install", (event) => {

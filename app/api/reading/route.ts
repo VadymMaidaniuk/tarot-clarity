@@ -3,7 +3,9 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-type Provider = "auto" | "local" | "openrouter" | "demo";
+const OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
+const DEFAULT_MODEL = "google/gemma-4-26b-a4b-it:free";
+const MAX_ATTEMPTS = 3;
 
 type ReadingRequest = {
   focus?: string;
@@ -15,7 +17,6 @@ type ReadingRequest = {
     keyword: string;
     meaning: string;
   }>;
-  provider?: Provider;
 };
 
 type Reading = {
@@ -45,56 +46,10 @@ function userFacingError(error: unknown) {
   }
 
   if (/429|rate.?limit/i.test(error.message)) {
-    return "Безкоштовна модель OpenRouter зараз перевантажена. Зачекайте кілька хвилин і спробуйте ще раз.";
+    return "Модель зараз перевантажена. Зачекайте кілька хвилин і спробуйте ще раз.";
   }
 
   return error.message;
-}
-
-function demoReading(body: ReadingRequest): Reading {
-  const selected = body.cards?.slice(0, 3) ?? [];
-  const labels = [
-    "Ваш внутрішній стан",
-    "Динаміка між вами",
-    "Конструктивний наступний крок",
-  ];
-
-  return {
-    title: "Шлях до ясності",
-    overview:
-      "Цей розклад не претендує на знання прихованих почуттів іншої людини. Він відображає напруження між вашою потребою у визначеності та інформацією, яка справді доступна. Корисний напрям — перейти від інтерпретацій до спостереження за фактами й одного свідомого вибору.",
-    positions: selected.map((card, index) => ({
-      position: labels[index],
-      card: card.name,
-      insight: `${card.meaning} У цій позиції карта «${card.name}» пропонує сприймати тему «${card.keyword.toLowerCase()}» як практику, а не передбачення.`,
-    })),
-    pattern:
-      "Спільна тема розкладу — ваша здатність діяти. Невизначеність може залишитися, але ви можете зменшити емоційну ціну, яку платите, несучи її наодинці.",
-    nextSteps: [
-      "Запишіть окремо те, що ви знаєте, що припускаєте і чого потребуєте. Не змішуйте ці три списки.",
-      "Оберіть одну спокійну й конкретну дію, яка дасть нову інформацію та не порушить ваших меж.",
-      "Якщо дія зараз недоречна, визначте межу, яка захищатиме вашу увагу протягом наступних семи днів.",
-    ],
-    reflectionQuestion:
-      "Який вибір збереже вашу самоповагу, навіть якщо відповідь іншої людини буде не такою, як ви сподіваєтеся?",
-  };
-}
-
-function resolveProvider(requested: Provider | undefined): Exclude<Provider, "auto"> {
-  const configured = (process.env.LLM_PROVIDER ?? "auto") as Provider;
-  const overrideAllowed =
-    process.env.ALLOW_PROVIDER_OVERRIDE === "true" ||
-    process.env.NODE_ENV !== "production";
-  const candidate =
-    overrideAllowed && requested && requested !== "auto"
-      ? requested
-      : configured;
-
-  if (candidate === "auto") {
-    return process.env.VERCEL ? "openrouter" : "local";
-  }
-
-  return candidate;
 }
 
 function extractJson(content: string): Reading {
@@ -161,86 +116,61 @@ function wait(milliseconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-async function callModel(provider: "local" | "openrouter", body: ReadingRequest) {
-  const isOpenRouter = provider === "openrouter";
-  const baseUrl = isOpenRouter
-    ? "https://openrouter.ai/api/v1"
-    : (process.env.LOCAL_LLM_BASE_URL ?? "http://127.0.0.1:11434/v1");
-  const model = isOpenRouter
-    ? (process.env.OPENROUTER_MODEL ?? "google/gemma-4-26b-a4b-it:free")
-    : (process.env.LOCAL_LLM_MODEL ?? "llama3.2:3b");
-  const apiKey = isOpenRouter
-    ? process.env.OPENROUTER_API_KEY
-    : process.env.LOCAL_LLM_API_KEY;
-  const timeoutMs = Number(
-    isOpenRouter
-      ? (process.env.OPENROUTER_TIMEOUT_MS ?? 90_000)
-      : (process.env.LOCAL_LLM_TIMEOUT_MS ?? 90_000),
-  );
-  const maxTokens = Number(
-    isOpenRouter
-      ? (process.env.OPENROUTER_MAX_TOKENS ?? 1_600)
-      : (process.env.LOCAL_LLM_MAX_TOKENS ?? 1_200),
-  );
-
-  if (isOpenRouter && !apiKey) {
+async function callOpenRouter(body: ReadingRequest) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
     throw new Error("OPENROUTER_API_KEY не налаштовано.");
   }
 
-  const endpoint = `${baseUrl.replace(/\/$/, "")}/chat/completions`;
+  const model = process.env.OPENROUTER_MODEL ?? DEFAULT_MODEL;
+  const timeoutMs = Number(process.env.OPENROUTER_TIMEOUT_MS ?? 90_000);
+  const maxTokens = Number(process.env.OPENROUTER_MAX_TOKENS ?? 1_600);
+
   const requestOptions: RequestInit = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
-        ...(isOpenRouter
-          ? {
-              "HTTP-Referer": process.env.APP_URL ?? "http://localhost:3000",
-              "X-Title": "AURA Tarot Clarity",
-            }
-          : {}),
-      },
-      body: JSON.stringify({
-        model,
-        messages: buildPrompt(body),
-        temperature: isOpenRouter ? 0.6 : 0.35,
-        max_tokens: maxTokens,
-        stream: false,
-        ...(isOpenRouter
-          ? { reasoning: { enabled: false }, include_reasoning: false }
-          : { reasoning_effort: "none" }),
-        response_format: isOpenRouter
-          ? { type: "json_object" }
-          : { type: "text" },
-      }),
-      signal: AbortSignal.timeout(timeoutMs),
-    };
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": process.env.APP_URL ?? "http://localhost:3000",
+      "X-Title": "AURA Tarot Clarity",
+    },
+    body: JSON.stringify({
+      model,
+      messages: buildPrompt(body),
+      temperature: 0.6,
+      max_tokens: maxTokens,
+      stream: false,
+      reasoning: { enabled: false },
+      include_reasoning: false,
+      response_format: { type: "json_object" },
+    }),
+    signal: AbortSignal.timeout(timeoutMs),
+  };
 
-  const attempts = isOpenRouter ? 3 : 1;
   let response: Response | undefined;
-  let detail = "";
 
-  for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    response = await fetch(endpoint, requestOptions);
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+    response = await fetch(OPENROUTER_ENDPOINT, requestOptions);
     if (response.ok) break;
 
-    detail = await response.text();
+    const detail = await response.text();
     const retryable = [429, 502, 503, 504].includes(response.status);
-    if (!retryable || attempt === attempts) {
+    if (!retryable || attempt === MAX_ATTEMPTS) {
       throw new Error(
-        `${provider} повернув помилку ${response.status}: ${detail.slice(0, 500)}`,
+        `OpenRouter повернув помилку ${response.status}: ${detail.slice(0, 500)}`,
       );
     }
 
     const retryAfter = Number(response.headers.get("retry-after"));
-    const delay = Number.isFinite(retryAfter) && retryAfter > 0
-      ? Math.min(retryAfter * 1_000, 10_000)
-      : attempt * 2_000;
+    const delay =
+      Number.isFinite(retryAfter) && retryAfter > 0
+        ? Math.min(retryAfter * 1_000, 10_000)
+        : attempt * 2_000;
     await wait(delay);
   }
 
   if (!response?.ok) {
-    throw new Error(`${provider} не повернув успішної відповіді.`);
+    throw new Error("OpenRouter не повернув успішної відповіді.");
   }
 
   const payload = (await response.json()) as {
@@ -269,38 +199,25 @@ export async function POST(request: Request) {
     );
   }
 
-  const provider = resolveProvider(body.provider);
-  if (provider === "demo") {
-    return NextResponse.json({
-      reading: demoReading(body),
-      provider,
-      model: "deterministic-demo",
-    });
-  }
+  const sanitized: ReadingRequest = {
+    focus: body.focus?.trim().slice(0, 200),
+    situation: body.situation?.trim().slice(0, 200),
+    context: body.context.trim().slice(0, 4_000),
+    cards: body.cards.slice(0, 3).map((card) => ({
+      name: String(card.name ?? "").slice(0, 80),
+      subtitle: String(card.subtitle ?? "").slice(0, 120),
+      keyword: String(card.keyword ?? "").slice(0, 40),
+      meaning: String(card.meaning ?? "").slice(0, 400),
+    })),
+  };
 
   try {
-    const result = await callModel(provider, body);
-    return NextResponse.json({ ...result, provider });
+    const result = await callOpenRouter(sanitized);
+    return NextResponse.json(result);
   } catch (error) {
-    const mayFallback =
-      provider === "local" &&
-      process.env.NODE_ENV !== "production" &&
-      process.env.LLM_FALLBACK_TO_DEMO !== "false";
-
-    if (mayFallback) {
-      return NextResponse.json({
-        reading: demoReading(body),
-        provider: "demo",
-        model: "deterministic-demo",
-        fallback: true,
-        warning: userFacingError(error),
-      });
-    }
-
+    console.error("[api/reading]", error);
     return NextResponse.json(
-      {
-        error: userFacingError(error),
-      },
+      { error: userFacingError(error) },
       { status: 502 },
     );
   }

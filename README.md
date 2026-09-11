@@ -1,86 +1,61 @@
 # AURA — Tarot Clarity PWA
 
-An installable, mobile-first reflection ritual based on the supplied Stitch
-design. The app includes the complete flow from intention and context through
-card selection, reveal, an LLM-generated reading, and a device-local archive.
+An installable, mobile-first reflection ritual built with Next.js. The UI
+follows Apple's Human Interface Guidelines: system typography, semantic
+light/dark colors, inset-grouped lists, a translucent navigation bar and tab
+bar, bottom sheets, and one primary action per screen.
+
+The flow: intention → situation → principles → your story → drawing three
+cards → the spread → an LLM-generated reflection that is archived on the
+device.
+
+## Architecture
+
+- `app/api/reading/route.ts` — the only server code. Calls OpenRouter with the
+  server-side key, retries on 429/5xx, validates the JSON reflection.
+- `components/ClarityApp.tsx` — the whole client experience (steps, archive,
+  settings sheet, share).
+- `components/icons.tsx` — inline SF-Symbols-style icons and card glyphs.
+- `lib/cards.ts` — the eight-card deck and spread positions.
+- `public/sw.js` — caches the app shell for offline use; generating a new
+  reading always needs the network.
 
 ## Run locally
 
 ```bash
 npm install
 copy .env.example .env.local
-npm run dev
-```
-
-Open `http://localhost:3000`.
-
-### Test on another device in the same Wi-Fi network
-
-```bash
-npm run dev:lan
-```
-
-Then open the `Network` URL printed by Next.js on the other device. The computer
-running the app and the testing device must be connected to the same local
-network.
-
-### Ollama
-
-The default local endpoint is Ollama's OpenAI-compatible API:
-
-```bash
-ollama pull llama3.2:3b
-ollama serve
-```
-
-Relevant settings:
-
-```env
-LLM_PROVIDER=local
-LOCAL_LLM_BASE_URL=http://127.0.0.1:11434/v1
-LOCAL_LLM_MODEL=llama3.2:3b
-```
-
-LM Studio and llama.cpp also work. Point `LOCAL_LLM_BASE_URL` at their
-OpenAI-compatible `/v1` endpoint and set the matching model name.
-
-If no local model is running, development uses a deterministic demo reading
-when `LLM_FALLBACK_TO_DEMO=true`. The UI shows a notice when this occurs.
-
-## Deploy to Vercel with OpenRouter
-
-Add these environment variables to the Vercel project:
-
-```env
-LLM_PROVIDER=openrouter
-OPENROUTER_API_KEY=your_server_side_key
-OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free
-APP_URL=https://your-domain.example
-ALLOW_PROVIDER_OVERRIDE=false
-LLM_FALLBACK_TO_DEMO=false
-```
-
-For a local OpenRouter test, enter the key without placing it in shell history:
-
-```powershell
 npm run configure:openrouter
 npm run dev
 ```
 
-With `LLM_PROVIDER=auto`, the app selects the local adapter outside Vercel and
-OpenRouter when `VERCEL=1`. The OpenRouter key is read only in the server API
-route and is never sent to the browser.
+`configure:openrouter` prompts for the OpenRouter key without leaving it in
+shell history. Open `http://localhost:3000`.
 
-## PWA behavior
+To test on a phone in the same Wi-Fi network run `npm run dev:lan` and open the
+`Network` URL that Next.js prints.
 
-The production build registers `/sw.js`, caches the application shell and
-visual assets, and keeps the ritual UI available offline. Generating a new
-reading still requires access to the configured LLM.
+## Deploy to Vercel
+
+Set these environment variables in the Vercel project:
+
+```env
+OPENROUTER_API_KEY=your_server_side_key
+OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free
+OPENROUTER_TIMEOUT_MS=90000
+OPENROUTER_MAX_TOKENS=1600
+APP_URL=https://your-domain.example
+```
+
+The key is read only inside the API route and never reaches the browser. The
+user's story is sent to the model for generation only and is not stored on the
+server; the archive lives in the browser's `localStorage`.
 
 ## Checks
 
 ```bash
-npm run lint
+npm run lint    # tsc --noEmit
 npm run build
-npm audit
+npm run smoke   # needs `npm run dev` in another terminal; the API is mocked
+npm run icons   # regenerate PNG app icons from public/icons/aura.svg
 ```
