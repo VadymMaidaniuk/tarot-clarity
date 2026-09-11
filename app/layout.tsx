@@ -11,14 +11,15 @@ const inter = Inter({
   display: "swap",
 });
 
-// Applies a saved theme before first paint so the page never flashes the
-// wrong scheme. "system" leaves the attribute off and defers to the media query.
-const themeScript = `(function(){try{var t=localStorage.getItem("aura-theme");if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();`;
+// Applies the saved theme and language before first paint so the page never
+// flashes the wrong scheme. "system" leaves the theme attribute off and
+// defers to the media query.
+const themeScript = `(function(){try{var t=localStorage.getItem("aura-theme");if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t);}var l=localStorage.getItem("aura-locale");if(l==="ru"||l==="uk"||l==="en"){document.documentElement.lang=l;}}catch(e){}})();`;
 
 export const metadata: Metadata = {
-  title: "AURA — Ясність у стосунках",
+  title: "AURA — Clarity rituals",
   description:
-    "Керований ритуал рефлексії з образами таро для ясності у стосунках.",
+    "Guided reflection with tarot imagery and your natal chart. Clarity, not prophecy.",
   applicationName: "AURA",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
@@ -49,7 +50,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="uk" className={inter.variable} suppressHydrationWarning>
+    <html lang="ru" className={inter.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

@@ -1,6 +1,6 @@
 import type { CardGlyph } from "@/lib/cards";
 
-type IconName =
+export type IconName =
   | "chevron-left"
   | "chevron-right"
   | "xmark"
@@ -18,7 +18,13 @@ type IconName =
   | "quote"
   | "anchor"
   | "layers"
-  | "checkmark-circle";
+  | "checkmark-circle"
+  | "globe"
+  | "calendar"
+  | "clock"
+  | "orbit"
+  | "language"
+  | "person";
 
 const paths: Record<IconName, React.ReactNode> = {
   "chevron-left": <path d="M15 5l-7 7 7 7" />,
@@ -96,6 +102,43 @@ const paths: Record<IconName, React.ReactNode> = {
     <>
       <circle cx="12" cy="12" r="9" />
       <path d="M8.5 12.5l2.3 2.3 4.7-5" />
+    </>
+  ),
+  globe: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18" />
+    </>
+  ),
+  calendar: (
+    <>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+      <path d="M3.5 9.5h17M8 3v4M16 3v4" />
+    </>
+  ),
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3.2 2" />
+    </>
+  ),
+  orbit: (
+    <>
+      <circle cx="12" cy="12" r="3.2" />
+      <ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(-30 12 12)" />
+      <circle cx="19.2" cy="7.4" r="1.2" fill="currentColor" stroke="none" />
+    </>
+  ),
+  language: (
+    <>
+      <path d="M4 6h9M8.5 4v2M11 6c-.6 3.5-3 6.5-6 8.5M6.5 9c1 2.2 3 4.1 5.5 5.5" />
+      <path d="M13 20l4-9 4 9M14.3 17h5.4" />
+    </>
+  ),
+  person: (
+    <>
+      <circle cx="12" cy="8" r="3.8" />
+      <path d="M4.5 20c.8-3.8 3.9-6 7.5-6s6.7 2.2 7.5 6" />
     </>
   ),
 };
