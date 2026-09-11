@@ -1,9 +1,9 @@
 import { chromium } from "playwright-core";
 import { mkdir } from "node:fs/promises";
 
-// End-to-end walk through both rituals on a phone-sized viewport with the
-// Russian UI. The OpenRouter call and the geocoder are intercepted, so the
-// smoke test needs neither an API key nor network access.
+// End-to-end walk through onboarding and both rituals on a phone-sized
+// viewport with the Russian UI. The OpenRouter call and the geocoder are
+// intercepted, so the smoke test needs neither an API key nor network access.
 const tarotFixture = {
   kind: "tarot",
   model: "smoke-fixture",
@@ -96,17 +96,28 @@ page.on("console", (message) => {
 await mkdir("artifacts", { recursive: true });
 await page.goto(baseUrl, { waitUntil: "networkidle" });
 await page.waitForTimeout(600);
+
+// --- First-launch onboarding ---------------------------------------------
+await page.getByRole("heading", { name: "Добро пожаловать в AURA" }).waitFor({ state: "visible" });
+await page.screenshot({ path: "artifacts/onboarding-mobile.png", fullPage: true });
+for (let index = 0; index < 3; index += 1) {
+  await page.getByRole("button", { name: "Далее" }).click();
+}
+await page.getByRole("button", { name: "Начать" }).click();
+
+// --- Ritual chooser -------------------------------------------------------
+await page.getByRole("heading", { name: "Выберите ритуал" }).waitFor({ state: "visible" });
 await page.screenshot({ path: "artifacts/home-mobile.png", fullPage: true });
 
 // --- Tarot ritual ---------------------------------------------------------
-await page.getByLabel("Фокус рефлексии").fill("молчание после нашего последнего разговора");
-await page.getByRole("button", { name: "Начать ритуал таро" }).click();
+await page.getByRole("button", { name: /Расклад таро/ }).click();
 await page.getByRole("button", { name: /Я постоянно думаю/ }).click();
 await page.getByRole("button", { name: "Продолжить" }).click();
-await page.getByRole("button", { name: "Я понимаю" }).click();
 await page.getByLabel("Ваша история").fill(
   "Мы почти не общаемся уже две недели. Я пытаюсь толковать каждый короткий ответ и хочу действовать, не теряя самоуважения.",
 );
+await page.getByRole("button", { name: "молчание" }).click();
+await page.screenshot({ path: "artifacts/story-mobile.png", fullPage: true });
 await page.getByRole("button", { name: "Продолжить" }).click();
 
 const deckCards = page.locator(".card-back");
@@ -133,10 +144,14 @@ await page.getByRole("button", { name: "Новый ритуал" }).click();
 
 // --- Natal chart ----------------------------------------------------------
 await page.getByRole("button", { name: /Натальная карта/ }).click();
-await page.getByLabel("Дата рождения").fill("1990-06-15");
-await page.getByLabel("Время рождения").fill("08:30");
+await page.getByLabel("День").selectOption("15");
+await page.getByLabel("Месяц").selectOption("06");
+await page.getByLabel("Год").selectOption("1990");
+await page.getByLabel("Часы").selectOption("08");
+await page.getByLabel("Минуты").selectOption("30");
 await page.getByLabel("Место рождения").fill("Киев");
 await page.getByRole("button", { name: /Киев/ }).first().click();
+await page.screenshot({ path: "artifacts/birth-form-mobile.png", fullPage: true });
 await page.getByRole("button", { name: "Рассчитать карту" }).click();
 await page.locator(".wheel").waitFor({ state: "visible", timeout: 10_000 });
 const planetRows = await page.locator(".glyph-icon").count();
@@ -153,9 +168,13 @@ await page.evaluate(() => window.scrollTo(0, 0));
 await page.screenshot({ path: "artifacts/natal-reading-mobile.png", fullPage: true });
 await page.getByRole("button", { name: "Новый ритуал" }).click();
 
-// Both readings must land in the on-device archive.
+// Both readings must land in the on-device archive, and the onboarding must
+// not come back after a reload.
 await page.getByRole("button", { name: "Архив" }).click();
 const archived = await page.locator(".row").count();
+await page.reload({ waitUntil: "networkidle" });
+await page.waitForTimeout(500);
+const onboardingAgain = await page.locator(".onboarding").count();
 
 const result = {
   title: await page.title(),
@@ -163,6 +182,7 @@ const result = {
   insightRows,
   planetRows,
   archivedReadings: archived,
+  onboardingAgain,
   consoleErrors,
 };
 
@@ -172,3 +192,4 @@ await browser.close();
 if (insightRows !== 3) throw new Error("Expected three tarot insight rows.");
 if (planetRows < 12) throw new Error("Expected the natal chart to list the planets.");
 if (archived < 2) throw new Error("Expected both readings to be archived.");
+if (onboardingAgain !== 0) throw new Error("Onboarding must be shown only once.");

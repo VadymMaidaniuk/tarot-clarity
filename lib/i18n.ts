@@ -27,10 +27,11 @@ const ru = {
   name: "Русский",
   /** Language name used inside the model prompt. */
   languageName: "Russian",
+  /** Locales that use a 24-hour clock get an hour/minute picker instead of the native input. */
+  clock24: true,
   nav: {
     home: "AURA",
     situation: "Ситуация",
-    principles: "Принципы",
     story: "История",
     deck: "Колода",
     spread: "Расклад",
@@ -45,32 +46,79 @@ const ru = {
     share: "Поделиться",
   },
   tabs: { ritual: "Ритуал", archive: "Архив" },
+  steps: (current: number, total: number): string => `Шаг ${current} из ${total}`,
   home: {
-    title: "От тревоги — к ясности.",
-    subtitle:
-      "Управляемая рефлексия с образами таро и натальной карты о том, что вы можете заметить и выбрать. Не пророчество.",
-    tarotSection: "Ритуал таро",
-    focusLabel: "Фокус рефлексии",
-    focusPlaceholder: "Что беспокоит вас сегодня?",
-    chips: ["тревога", "тоска", "молчание", "ревность"],
-    focusFooter: "Необязательно. Помогает точнее понять, о чём идёт речь.",
-    start: "Начать ритуал таро",
-    natalSection: "Натальная карта",
-    natalTitle: "Натальная карта",
-    natalEmpty: "Дата, время и место рождения",
-    natalFooter: "Положение планет в момент рождения как язык для разговора о себе.",
-    features: [
+    title: "Выберите ритуал",
+    subtitle: "Несколько минут спокойной рефлексии. Всё остаётся на вашем устройстве.",
+    tarot: {
+      title: "Расклад таро",
+      description:
+        "Разобраться в ситуации в отношениях: опишите, что случилось, вытяните три карты и получите рефлексию с одним конкретным шагом.",
+      meta: "5 минут · 3 карты",
+    },
+    natal: {
+      title: "Натальная карта",
+      description:
+        "Увидеть свои склонности через положение планет в момент рождения. Нужны дата, время и место рождения.",
+      meta: "3 минуты · нужна дата рождения",
+      profile: "Профиль сохранён: ",
+    },
+    howItWorks: "Как это работает",
+    footer: "Ясность, а не пророчество: мы не предсказываем будущее и не оцениваем чужие чувства.",
+  },
+  onboarding: {
+    skip: "Пропустить",
+    next: "Далее",
+    start: "Начать",
+    done: "Готово",
+    welcome: {
+      title: "Добро пожаловать в AURA",
+      text: "Это пространство для спокойной рефлексии о себе и отношениях. Не гадание и не пророчество — способ увидеть ситуацию яснее и выбрать один следующий шаг.",
+    },
+    tarot: {
+      title: "Как проходит расклад таро",
+      steps: [
+        { title: "Опишите ситуацию", text: "Выберите, что вас беспокоит, и расскажите своими словами." },
+        { title: "Вытяните три карты", text: "Карты — это образы для размышления, а не предсказания." },
+        {
+          title: "Получите рефлексию",
+          text: "Модель напишет разбор трёх позиций и предложит один конкретный шаг.",
+        },
+      ],
+    },
+    natal: {
+      title: "Как работает натальная карта",
+      steps: [
+        { title: "Введите данные рождения", text: "Дата, время и место. Если время неизвестно — тоже подойдёт." },
+        { title: "Мы рассчитаем карту", text: "Положение планет, знаки, дома и аспекты — прямо на устройстве." },
+        { title: "Прочитайте рефлексию", text: "О склонностях и ресурсах, без предсказаний." },
+      ],
+    },
+    privacy: {
+      title: "Ваши данные — только ваши",
+      steps: [
+        { title: "Всё хранится на устройстве", text: "Архив и данные рождения не покидают телефон." },
+        {
+          title: "Модель видит только текст",
+          text: "История и сводка карты отправляются только для создания рефлексии.",
+        },
+        { title: "Данные можно удалить в любой момент", text: "В настройках." },
+      ],
+    },
+  },
+  principles: {
+    items: [
       {
-        title: "Приватно",
-        text: "История отправляется модели только для создания рефлексии. Архив и данные рождения хранятся на этом устройстве.",
+        title: "Внутренняя опора",
+        text: "Мы не предсказываем чужие чувства или будущее. Мы возвращаем внимание к тому, что вы можете заметить и выбрать.",
       },
       {
-        title: "Психологически выверено",
-        text: "Без пророчеств, диагнозов и утверждений о чужих чувствах.",
+        title: "Психологическая глубина",
+        text: "Карты и планеты — это метафоры для рефлексии, а не диагнозы и не приговоры.",
       },
       {
-        title: "Один конкретный шаг",
-        text: "Каждая сессия завершается действием, которое можно сделать сегодня.",
+        title: "Осознанное действие",
+        text: "Каждая рефлексия завершается одним конкретным шагом, который вы можете сделать сегодня.",
       },
     ],
   },
@@ -101,40 +149,22 @@ const ru = {
     ],
     continue: "Продолжить",
   },
-  principles: {
-    title: "Ясность, а не пророчество.",
-    subtitle:
-      "Это не предсказание чужих чувств или будущего. Это управляемая рефлексия о том, что вы можете заметить и выбрать.",
-    items: [
-      {
-        title: "Внутренняя опора",
-        text: "Мы не предсказываем чужие чувства или будущее. Мы возвращаем внимание к тому, что вы можете заметить и выбрать.",
-      },
-      {
-        title: "Психологическая глубина",
-        text: "Карты и планеты — это метафоры для рефлексии, а не диагнозы и не приговоры.",
-      },
-      {
-        title: "Осознанное действие",
-        text: "Каждая рефлексия завершается одним конкретным шагом, который вы можете сделать сегодня.",
-      },
-    ],
-    cta: "Я понимаю",
-  },
   story: {
     title: "Расскажите, что случилось.",
-    subtitle: "Что до сих пор остаётся нерешённым? Пишите свободно.",
+    subtitle: "Что до сих пор остаётся нерешённым? Пишите свободно, как другу.",
     label: "Ваша история",
-    placeholder: "Пишите свободно…",
+    placeholder: "Например: мы почти не общаемся две недели, и я не понимаю почему…",
     minHint: "Не менее 12 символов.",
     privacyHint: "Текст нужен только для этой рефлексии.",
+    focusLabel: "О чём это? Необязательно",
+    chips: ["тревога", "тоска", "молчание", "ревность"],
     continue: "Продолжить",
   },
   deck: {
     title: "Сделайте вдох.",
-    subtitle: "Побудьте с ситуацией. Когда будете готовы, выберите три карты.",
+    subtitle: "Побудьте с ситуацией. Когда будете готовы, коснитесь трёх карт.",
     remaining: (count: number): string => {
-      if (count === 3) return "Выберите три карты";
+      if (count === 3) return "Коснитесь трёх карт";
       if (count === 2) return "Выберите ещё две";
       if (count === 1) return "Выберите ещё одну";
       return "Три карты выбраны";
@@ -144,7 +174,7 @@ const ru = {
   },
   spread: {
     title: "Ваш расклад",
-    subtitle: "Три образа для трёх вопросов.",
+    subtitle: "Три образа для трёх вопросов. Дальше модель соберёт их в рефлексию.",
     positions: ["Ваше внутреннее состояние", "Динамика между вами", "Конструктивный следующий шаг"],
     create: "Создать рефлексию",
   },
@@ -177,6 +207,7 @@ const ru = {
     appearance: "Вид",
     themes: { system: "Авто", light: "Светлая", dark: "Тёмная" },
     language: "Язык",
+    help: "Помощь",
     archive: "Архив",
     saved: "Сохранено рефлексий",
     clear: "Очистить архив",
@@ -202,16 +233,22 @@ const ru = {
     formSubtitle: "Нужны для расчёта положения планет. Хранятся только на этом устройстве.",
     date: "Дата рождения",
     time: "Время рождения",
+    day: "День",
+    month: "Месяц",
+    year: "Год",
+    hour: "Часы",
+    minute: "Минуты",
     timeUnknown: "Время неизвестно",
     timeUnknownHint:
       "Без времени не будет Асцендента и домов, а положение Луны — приблизительное.",
     place: "Место рождения",
-    placePlaceholder: "Город",
+    placePlaceholder: "Начните вводить город",
     searching: "Ищем…",
     noResults: "Ничего не найдено. Попробуйте другое написание.",
     geoError: "Не удалось выполнить поиск. Проверьте соединение.",
     calculate: "Рассчитать карту",
     chartTitle: "Ваша натальная карта",
+    chartSubtitle: "Посмотрите положения и нажмите «Создать рефлексию» внизу.",
     bigThree: "Главное",
     noTime: "Время рождения неизвестно: без Асцендента и домов, Луна приблизительно.",
     planetsLabel: "Планеты",
@@ -286,10 +323,10 @@ const uk: Messages = {
   tag: "uk-UA",
   name: "Українська",
   languageName: "Ukrainian",
+  clock24: true,
   nav: {
     home: "AURA",
     situation: "Ситуація",
-    principles: "Принципи",
     story: "Історія",
     deck: "Колода",
     spread: "Розклад",
@@ -304,32 +341,79 @@ const uk: Messages = {
     share: "Поділитися",
   },
   tabs: { ritual: "Ритуал", archive: "Архів" },
+  steps: (current: number, total: number): string => `Крок ${current} із ${total}`,
   home: {
-    title: "Від тривоги — до ясності.",
-    subtitle:
-      "Керована рефлексія з образами таро та натальної карти про те, що ви можете помітити й обрати. Не пророцтво.",
-    tarotSection: "Ритуал таро",
-    focusLabel: "Фокус рефлексії",
-    focusPlaceholder: "Що непокоїть вас сьогодні?",
-    chips: ["тривога", "туга", "мовчання", "ревнощі"],
-    focusFooter: "Необов’язково. Допомагає точніше зрозуміти, про що йдеться.",
-    start: "Почати ритуал таро",
-    natalSection: "Натальна карта",
-    natalTitle: "Натальна карта",
-    natalEmpty: "Дата, час і місце народження",
-    natalFooter: "Положення планет у момент народження як мова для розмови про себе.",
-    features: [
+    title: "Оберіть ритуал",
+    subtitle: "Кілька хвилин спокійної рефлексії. Усе залишається на вашому пристрої.",
+    tarot: {
+      title: "Розклад таро",
+      description:
+        "Розібратися в ситуації у стосунках: опишіть, що сталося, витягніть три карти й отримайте рефлексію з одним конкретним кроком.",
+      meta: "5 хвилин · 3 карти",
+    },
+    natal: {
+      title: "Натальна карта",
+      description:
+        "Побачити свої схильності через положення планет у момент народження. Потрібні дата, час і місце народження.",
+      meta: "3 хвилини · потрібна дата народження",
+      profile: "Профіль збережено: ",
+    },
+    howItWorks: "Як це працює",
+    footer: "Ясність, а не пророцтво: ми не передбачаємо майбутнє і не оцінюємо чужі почуття.",
+  },
+  onboarding: {
+    skip: "Пропустити",
+    next: "Далі",
+    start: "Почати",
+    done: "Готово",
+    welcome: {
+      title: "Вітаємо в AURA",
+      text: "Це простір для спокійної рефлексії про себе та стосунки. Не ворожіння і не пророцтво — спосіб побачити ситуацію ясніше й обрати один наступний крок.",
+    },
+    tarot: {
+      title: "Як проходить розклад таро",
+      steps: [
+        { title: "Опишіть ситуацію", text: "Оберіть, що вас непокоїть, і розкажіть своїми словами." },
+        { title: "Витягніть три карти", text: "Карти — це образи для роздумів, а не передбачення." },
+        {
+          title: "Отримайте рефлексію",
+          text: "Модель напише розбір трьох позицій і запропонує один конкретний крок.",
+        },
+      ],
+    },
+    natal: {
+      title: "Як працює натальна карта",
+      steps: [
+        { title: "Введіть дані народження", text: "Дата, час і місце. Якщо час невідомий — теж підійде." },
+        { title: "Ми розрахуємо карту", text: "Положення планет, знаки, доми й аспекти — просто на пристрої." },
+        { title: "Прочитайте рефлексію", text: "Про схильності та ресурси, без передбачень." },
+      ],
+    },
+    privacy: {
+      title: "Ваші дані — лише ваші",
+      steps: [
+        { title: "Усе зберігається на пристрої", text: "Архів і дані народження не залишають телефон." },
+        {
+          title: "Модель бачить лише текст",
+          text: "Історія та зведення карти надсилаються тільки для створення рефлексії.",
+        },
+        { title: "Дані можна видалити будь-коли", text: "У налаштуваннях." },
+      ],
+    },
+  },
+  principles: {
+    items: [
       {
-        title: "Приватно",
-        text: "Історія надсилається моделі лише для створення рефлексії. Архів і дані народження зберігаються на цьому пристрої.",
+        title: "Внутрішня опора",
+        text: "Ми не передбачаємо чужі почуття чи майбутнє. Ми повертаємо увагу до того, що ви можете помітити й обрати.",
       },
       {
-        title: "Психологічно виважено",
-        text: "Без пророцтв, діагнозів і тверджень про чужі почуття.",
+        title: "Психологічна глибина",
+        text: "Карти й планети — це метафори для рефлексії, а не діагнози й не вироки.",
       },
       {
-        title: "Один конкретний крок",
-        text: "Кожна сесія завершується дією, яку можна зробити сьогодні.",
+        title: "Свідома дія",
+        text: "Кожна рефлексія завершується одним конкретним кроком, який ви можете зробити сьогодні.",
       },
     ],
   },
@@ -360,40 +444,22 @@ const uk: Messages = {
     ],
     continue: "Продовжити",
   },
-  principles: {
-    title: "Ясність, а не пророцтво.",
-    subtitle:
-      "Це не передбачення чужих почуттів чи майбутнього. Це керована рефлексія про те, що ви можете помітити й обрати.",
-    items: [
-      {
-        title: "Внутрішня опора",
-        text: "Ми не передбачаємо чужі почуття чи майбутнє. Ми повертаємо увагу до того, що ви можете помітити й обрати.",
-      },
-      {
-        title: "Психологічна глибина",
-        text: "Карти й планети — це метафори для рефлексії, а не діагнози й не вироки.",
-      },
-      {
-        title: "Свідома дія",
-        text: "Кожна рефлексія завершується одним конкретним кроком, який ви можете зробити сьогодні.",
-      },
-    ],
-    cta: "Я розумію",
-  },
   story: {
     title: "Розкажіть, що сталося.",
-    subtitle: "Що досі залишається невирішеним? Пишіть вільно.",
+    subtitle: "Що досі залишається невирішеним? Пишіть вільно, як другові.",
     label: "Ваша історія",
-    placeholder: "Пишіть вільно…",
+    placeholder: "Наприклад: ми майже не спілкуємося два тижні, і я не розумію чому…",
     minHint: "Щонайменше 12 символів.",
     privacyHint: "Текст потрібен лише для цієї рефлексії.",
+    focusLabel: "Про що це? Необов’язково",
+    chips: ["тривога", "туга", "мовчання", "ревнощі"],
     continue: "Продовжити",
   },
   deck: {
     title: "Зробіть вдих.",
-    subtitle: "Побудьте із ситуацією. Коли будете готові, оберіть три карти.",
+    subtitle: "Побудьте із ситуацією. Коли будете готові, торкніться трьох карт.",
     remaining: (count: number): string => {
-      if (count === 3) return "Оберіть три карти";
+      if (count === 3) return "Торкніться трьох карт";
       if (count === 2) return "Оберіть ще дві";
       if (count === 1) return "Оберіть ще одну";
       return "Три карти обрано";
@@ -403,7 +469,7 @@ const uk: Messages = {
   },
   spread: {
     title: "Ваш розклад",
-    subtitle: "Три образи для трьох запитань.",
+    subtitle: "Три образи для трьох запитань. Далі модель збере їх у рефлексію.",
     positions: ["Ваш внутрішній стан", "Динаміка між вами", "Конструктивний наступний крок"],
     create: "Створити рефлексію",
   },
@@ -436,6 +502,7 @@ const uk: Messages = {
     appearance: "Вигляд",
     themes: { system: "Авто", light: "Світла", dark: "Темна" },
     language: "Мова",
+    help: "Допомога",
     archive: "Архів",
     saved: "Збережено рефлексій",
     clear: "Очистити архів",
@@ -461,15 +528,21 @@ const uk: Messages = {
     formSubtitle: "Потрібні для розрахунку положення планет. Зберігаються лише на цьому пристрої.",
     date: "Дата народження",
     time: "Час народження",
+    day: "День",
+    month: "Місяць",
+    year: "Рік",
+    hour: "Години",
+    minute: "Хвилини",
     timeUnknown: "Час невідомий",
     timeUnknownHint: "Без часу не буде Асцендента й домів, а положення Місяця — приблизне.",
     place: "Місце народження",
-    placePlaceholder: "Місто",
+    placePlaceholder: "Почніть вводити місто",
     searching: "Шукаємо…",
     noResults: "Нічого не знайдено. Спробуйте інше написання.",
     geoError: "Не вдалося виконати пошук. Перевірте з’єднання.",
     calculate: "Розрахувати карту",
     chartTitle: "Ваша натальна карта",
+    chartSubtitle: "Перегляньте положення й натисніть «Створити рефлексію» внизу.",
     bigThree: "Головне",
     noTime: "Час народження невідомий: без Асцендента й домів, Місяць приблизно.",
     planetsLabel: "Планети",
@@ -542,10 +615,10 @@ const en: Messages = {
   tag: "en-US",
   name: "English",
   languageName: "English",
+  clock24: false,
   nav: {
     home: "AURA",
     situation: "Situation",
-    principles: "Principles",
     story: "Story",
     deck: "Deck",
     spread: "Spread",
@@ -560,32 +633,79 @@ const en: Messages = {
     share: "Share",
   },
   tabs: { ritual: "Ritual", archive: "Archive" },
+  steps: (current: number, total: number): string => `Step ${current} of ${total}`,
   home: {
-    title: "From worry to clarity.",
-    subtitle:
-      "Guided reflection through tarot imagery and your natal chart about what you can notice and choose. Not a prophecy.",
-    tarotSection: "Tarot ritual",
-    focusLabel: "Focus of reflection",
-    focusPlaceholder: "What is on your mind today?",
-    chips: ["anxiety", "longing", "silence", "jealousy"],
-    focusFooter: "Optional. Helps the reflection stay on point.",
-    start: "Start tarot ritual",
-    natalSection: "Natal chart",
-    natalTitle: "Natal chart",
-    natalEmpty: "Date, time and place of birth",
-    natalFooter: "The sky at your birth as a language for talking about yourself.",
-    features: [
+    title: "Choose a ritual",
+    subtitle: "A few minutes of calm reflection. Everything stays on your device.",
+    tarot: {
+      title: "Tarot spread",
+      description:
+        "Make sense of a relationship situation: describe what happened, draw three cards and get a reflection with one concrete step.",
+      meta: "5 minutes · 3 cards",
+    },
+    natal: {
+      title: "Natal chart",
+      description:
+        "See your tendencies through the planets at the moment of your birth. Needs your date, time and place of birth.",
+      meta: "3 minutes · needs your birth date",
+      profile: "Profile saved: ",
+    },
+    howItWorks: "How it works",
+    footer: "Clarity, not prophecy: we don't predict the future or judge other people's feelings.",
+  },
+  onboarding: {
+    skip: "Skip",
+    next: "Next",
+    start: "Get started",
+    done: "Done",
+    welcome: {
+      title: "Welcome to AURA",
+      text: "A space for calm reflection about yourself and your relationships. Not fortune-telling and not prophecy — a way to see a situation more clearly and choose one next step.",
+    },
+    tarot: {
+      title: "How a tarot spread works",
+      steps: [
+        { title: "Describe the situation", text: "Pick what's troubling you and tell it in your own words." },
+        { title: "Draw three cards", text: "The cards are images to think with, not predictions." },
+        {
+          title: "Read your reflection",
+          text: "The model writes about the three positions and suggests one concrete step.",
+        },
+      ],
+    },
+    natal: {
+      title: "How the natal chart works",
+      steps: [
+        { title: "Enter your birth data", text: "Date, time and place. An unknown time works too." },
+        { title: "We calculate the chart", text: "Planets, signs, houses and aspects — right on your device." },
+        { title: "Read your reflection", text: "About tendencies and resources, without predictions." },
+      ],
+    },
+    privacy: {
+      title: "Your data stays yours",
+      steps: [
+        { title: "Everything is stored on the device", text: "The archive and birth data never leave your phone." },
+        {
+          title: "The model sees only text",
+          text: "Your story and the chart digest are sent only to create the reflection.",
+        },
+        { title: "Delete anytime", text: "In Settings." },
+      ],
+    },
+  },
+  principles: {
+    items: [
       {
-        title: "Private",
-        text: "Your story is sent to the model only to create the reflection. The archive and birth data stay on this device.",
+        title: "Inner ground",
+        text: "We don't predict other people's feelings or the future. We bring attention back to what you can notice and choose.",
       },
       {
-        title: "Psychologically grounded",
-        text: "No prophecies, no diagnoses, no claims about other people's feelings.",
+        title: "Psychological depth",
+        text: "Cards and planets are metaphors for reflection, not diagnoses and not verdicts.",
       },
       {
-        title: "One concrete step",
-        text: "Every session ends with an action you can take today.",
+        title: "Conscious action",
+        text: "Every reflection ends with one concrete step you can take today.",
       },
     ],
   },
@@ -616,40 +736,22 @@ const en: Messages = {
     ],
     continue: "Continue",
   },
-  principles: {
-    title: "Clarity, not prophecy.",
-    subtitle:
-      "This is not a prediction of someone's feelings or the future. It is a guided reflection on what you can notice and choose.",
-    items: [
-      {
-        title: "Inner ground",
-        text: "We don't predict other people's feelings or the future. We bring attention back to what you can notice and choose.",
-      },
-      {
-        title: "Psychological depth",
-        text: "Cards and planets are metaphors for reflection, not diagnoses and not verdicts.",
-      },
-      {
-        title: "Conscious action",
-        text: "Every reflection ends with one concrete step you can take today.",
-      },
-    ],
-    cta: "I understand",
-  },
   story: {
     title: "Tell what happened.",
-    subtitle: "What is still unresolved? Write freely.",
+    subtitle: "What is still unresolved? Write freely, as if to a friend.",
     label: "Your story",
-    placeholder: "Write freely…",
+    placeholder: "For example: we've barely talked for two weeks and I don't understand why…",
     minHint: "At least 12 characters.",
     privacyHint: "The text is used only for this reflection.",
+    focusLabel: "What is it about? Optional",
+    chips: ["anxiety", "longing", "silence", "jealousy"],
     continue: "Continue",
   },
   deck: {
     title: "Take a breath.",
-    subtitle: "Stay with the situation. When you are ready, choose three cards.",
+    subtitle: "Stay with the situation. When you are ready, tap three cards.",
     remaining: (count: number): string => {
-      if (count === 3) return "Choose three cards";
+      if (count === 3) return "Tap three cards";
       if (count === 2) return "Choose two more";
       if (count === 1) return "Choose one more";
       return "Three cards chosen";
@@ -659,7 +761,7 @@ const en: Messages = {
   },
   spread: {
     title: "Your spread",
-    subtitle: "Three images for three questions.",
+    subtitle: "Three images for three questions. Next, the model weaves them into a reflection.",
     positions: ["Your inner state", "The dynamic between you", "A constructive next step"],
     create: "Create reflection",
   },
@@ -692,6 +794,7 @@ const en: Messages = {
     appearance: "Appearance",
     themes: { system: "Auto", light: "Light", dark: "Dark" },
     language: "Language",
+    help: "Help",
     archive: "Archive",
     saved: "Saved reflections",
     clear: "Clear archive",
@@ -717,15 +820,21 @@ const en: Messages = {
     formSubtitle: "Needed to calculate planetary positions. Stored only on this device.",
     date: "Date of birth",
     time: "Time of birth",
+    day: "Day",
+    month: "Month",
+    year: "Year",
+    hour: "Hours",
+    minute: "Minutes",
     timeUnknown: "Time unknown",
     timeUnknownHint: "Without a time there is no Ascendant or houses, and the Moon's position is approximate.",
     place: "Place of birth",
-    placePlaceholder: "City",
+    placePlaceholder: "Start typing a city",
     searching: "Searching…",
     noResults: "Nothing found. Try a different spelling.",
     geoError: "Search failed. Check your connection.",
     calculate: "Calculate chart",
     chartTitle: "Your natal chart",
+    chartSubtitle: "Review the placements, then tap “Create reflection” below.",
     bigThree: "Essentials",
     noTime: "Birth time unknown: no Ascendant or houses, Moon approximate.",
     planetsLabel: "Planets",

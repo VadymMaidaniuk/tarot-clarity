@@ -7,10 +7,12 @@ sheets, and one primary action per screen. Russian, Ukrainian and English are
 supported; the language is detected from the device and can be changed in
 settings.
 
-Two rituals share one archive:
+A four-page onboarding (what AURA is, how each ritual works, privacy) runs on
+first launch and can be replayed from the home screen or Settings. The home
+screen is a chooser between the two rituals, which share one archive:
 
-- **Tarot** — intention → situation → principles → your story → drawing three
-  cards → the spread → an LLM-written reflection.
+- **Tarot** — situation → your story → drawing three cards → the spread → an
+  LLM-written reflection. Every step shows "Step N of 5".
 - **Natal chart** — date, time and place of birth → planetary positions,
   Ascendant/Midheaven, Placidus houses and major aspects computed on the
   device → a chart wheel → an LLM-written psychological reflection. Birth
