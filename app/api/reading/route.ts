@@ -1,4 +1,13 @@
 import { NextResponse } from "next/server";
+import { isLocale, messages, type Locale } from "@/lib/i18n";
+import type {
+  ChartSummary,
+  NatalReading,
+  NatalRequest,
+  ReadingRequest,
+  TarotReading,
+  TarotRequest,
+} from "@/lib/reading-types";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -9,52 +18,31 @@ const DEFAULT_MAX_TOKENS = 4_000;
 const DEFAULT_REASONING = "low";
 const MAX_ATTEMPTS = 3;
 
-type ReadingRequest = {
-  focus?: string;
-  situation?: string;
-  context?: string;
-  cards?: Array<{
-    name: string;
-    subtitle: string;
-    keyword: string;
-    meaning: string;
-  }>;
-};
+type ErrorCode = keyof (typeof messages)["ru"]["errors"];
 
-type Reading = {
-  title: string;
-  overview: string;
-  positions: Array<{
-    position: string;
-    card: string;
-    insight: string;
-  }>;
-  pattern: string;
-  nextSteps: string[];
-  reflectionQuestion: string;
-};
-
-function userFacingError(error: unknown) {
-  if (!(error instanceof Error)) {
-    return "Не вдалося створити рефлексію.";
+class ReadingError extends Error {
+  code: ErrorCode;
+  constructor(code: ErrorCode, detail?: string) {
+    super(detail ?? code);
+    this.code = code;
   }
+}
 
+function classifyError(error: unknown): ErrorCode {
+  if (error instanceof ReadingError) return error.code;
+  if (!(error instanceof Error)) return "generic";
   if (
     error.name === "TimeoutError" ||
     error.name === "AbortError" ||
     /timeout|timed out|aborted/i.test(error.message)
   ) {
-    return "Модель не встигла відповісти. Спробуйте ще раз за кілька хвилин.";
+    return "timeout";
   }
-
-  if (/429|rate.?limit/i.test(error.message)) {
-    return "Модель зараз перевантажена. Зачекайте кілька хвилин і спробуйте ще раз.";
-  }
-
-  return error.message;
+  if (/429|rate.?limit/i.test(error.message)) return "rateLimited";
+  return "generic";
 }
 
-function extractJson(content: string): Reading {
+function extractJson<T extends object>(content: string): T {
   const cleaned = content
     .trim()
     .replace(/^```(?:json)?\s*/i, "")
@@ -62,45 +50,48 @@ function extractJson(content: string): Reading {
   const start = cleaned.indexOf("{");
   const end = cleaned.lastIndexOf("}");
   if (start < 0 || end <= start) {
-    throw new Error("Модель не повернула JSON-об’єкт.");
+    throw new ReadingError("noJson");
   }
-
-  const parsed = JSON.parse(cleaned.slice(start, end + 1)) as Reading;
-  if (
-    !parsed.title ||
-    !parsed.overview ||
-    !Array.isArray(parsed.positions) ||
-    !Array.isArray(parsed.nextSteps)
-  ) {
-    throw new Error("Модель повернула неповну рефлексію.");
+  try {
+    return JSON.parse(cleaned.slice(start, end + 1)) as T;
+  } catch {
+    throw new ReadingError("noJson");
   }
-  return parsed;
 }
 
-function buildPrompt(body: ReadingRequest) {
+const shared = (language: string) => `Write every JSON string value in natural, modern ${language}, regardless of the language of the input.
+Proofread grammar; avoid calques, artificial words and unfinished sentences.
+Do not translate JSON keys. Do not add markdown, explanations or reasoning outside the JSON. The first character of the reply must be { and the last must be }.`;
+
+function tarotPrompt(body: TarotRequest) {
+  const t = messages[body.locale];
+  const [first, second, third] = t.spread.positions;
+  const natalHint = body.natalContext
+    ? `\nThe user also shares a natal digest in "natalContext". You may weave one or two gentle references to it into the overview or the pattern, always as a metaphor and never as a deterministic claim.`
+    : "";
+
   return [
     {
       role: "system",
-      content: `Ти — AURA, психологічно виважений провідник рефлексії з образами таро.
-Ніколи не передбачай майбутнє, не став діагнозів і не стверджуй, що знаєш приховані почуття іншої людини.
-Сприймай карти таро як метафори для саморефлексії. Пиши тепло, конкретно, спокійно й без осуду.
-Увесь текст у значеннях JSON обов’язково пиши природною сучасною українською мовою, незалежно від мови вхідного тексту.
-Пиши стисло: overview — до 120 слів, кожен insight — до 70 слів, кожен наступний крок — одне речення.
-Вичитай граматику й уникай кальок, штучних слів і незавершених речень.
-Не перекладай назви JSON-полів. Не додавай markdown, пояснення чи міркування поза JSON. Перший символ відповіді — {, останній — }.
-У полі card вказуй точну назву карти з поля name у spread (не keyword і не subtitle), у тому самому порядку, що й у spread.
-Поверни валідний JSON точно такої структури:
+      content: `You are AURA, a psychologically grounded guide for reflection that uses tarot imagery.
+Never predict the future, never diagnose, and never claim to know another person's hidden feelings.
+Treat the cards as metaphors for self-reflection. Write warmly, concretely, calmly and without judgement.
+${shared(t.languageName)}
+Be concise: overview up to 120 words, each insight up to 70 words, each next step a single sentence.
+In "card" use the exact card name from the "name" field of the spread, in the same order as the spread (never the keyword or subtitle).
+Use exactly these position labels: "${first}", "${second}", "${third}".${natalHint}
+Return valid JSON with exactly this structure:
 {
-  "title": "короткий образний заголовок українською",
-  "overview": "2–3 абзаци українською в одному рядку",
+  "title": "short evocative title",
+  "overview": "2–3 paragraphs in one string",
   "positions": [
-    {"position":"Ваш внутрішній стан","card":"name першої карти","insight":"конкретна рефлексія українською"},
-    {"position":"Динаміка між вами","card":"name другої карти","insight":"конкретна рефлексія українською"},
-    {"position":"Конструктивний наступний крок","card":"name третьої карти","insight":"конкретна рефлексія українською"}
+    {"position":"${first}","card":"name of the first card","insight":"concrete reflection"},
+    {"position":"${second}","card":"name of the second card","insight":"concrete reflection"},
+    {"position":"${third}","card":"name of the third card","insight":"concrete reflection"}
   ],
-  "pattern": "синтез трьох карт українською",
-  "nextSteps": ["дія 1","дія 2","дія 3"],
-  "reflectionQuestion": "одне точне запитання українською"
+  "pattern": "synthesis of the three cards",
+  "nextSteps": ["action 1","action 2","action 3"],
+  "reflectionQuestion": "one precise question"
 }`,
     },
     {
@@ -110,6 +101,45 @@ function buildPrompt(body: ReadingRequest) {
         selectedSituation: body.situation,
         userNarrative: body.context,
         spread: body.cards,
+        natalContext: body.natalContext,
+      }),
+    },
+  ];
+}
+
+function natalPrompt(body: NatalRequest) {
+  const t = messages[body.locale];
+  const timeNote = body.chart.hasTime
+    ? "Houses and the Ascendant are available; you may refer to them."
+    : "The birth time is unknown: never mention the Ascendant or houses, and treat the Moon sign as approximate.";
+
+  return [
+    {
+      role: "system",
+      content: `You are AURA, a psychologically grounded guide for reflection that uses the natal chart as a symbolic language (psychological astrology).
+Never predict events, never diagnose, and never make claims about health, death, money, or other people. Treat placements as tendencies and metaphors, not facts about the person; prefer wording such as "may" and "tends to".
+${timeNote}
+${shared(t.languageName)}
+Be concise: overview up to 130 words; three or four placements, each insight up to 60 words; "tension" and "strength" up to 60 words each; each next step a single sentence.
+Choose the placements that matter most for the user's focus (if given) — usually the Sun, the Moon, the Ascendant when available, and the tightest aspect.
+Return valid JSON with exactly this structure:
+{
+  "title": "short evocative title",
+  "overview": "2–3 paragraphs in one string",
+  "placements": [
+    {"label":"short theme label","placement":"e.g. Sun in Gemini, house 10","insight":"concrete reflection"}
+  ],
+  "tension": "one challenging pattern framed as a growth edge",
+  "strength": "one resource the chart suggests",
+  "nextSteps": ["action 1","action 2","action 3"],
+  "reflectionQuestion": "one precise question"
+}`,
+    },
+    {
+      role: "user",
+      content: JSON.stringify({
+        reflectiveFocus: body.focus,
+        chart: body.chart,
       }),
     },
   ];
@@ -131,10 +161,10 @@ function reasoningConfig() {
   return { reasoning: { effort: level, exclude: true } };
 }
 
-async function callOpenRouter(body: ReadingRequest) {
+async function callOpenRouter(prompt: Array<{ role: string; content: string }>) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY не налаштовано.");
+    throw new ReadingError("noKey");
   }
 
   const model = process.env.OPENROUTER_MODEL ?? DEFAULT_MODEL;
@@ -151,7 +181,7 @@ async function callOpenRouter(body: ReadingRequest) {
     },
     body: JSON.stringify({
       model,
-      messages: buildPrompt(body),
+      messages: prompt,
       temperature: 0.6,
       max_tokens: maxTokens,
       stream: false,
@@ -171,7 +201,7 @@ async function callOpenRouter(body: ReadingRequest) {
     const retryable = [429, 502, 503, 504].includes(response.status);
     if (!retryable || attempt === MAX_ATTEMPTS) {
       throw new Error(
-        `OpenRouter повернув помилку ${response.status}: ${detail.slice(0, 500)}`,
+        `OpenRouter returned ${response.status}: ${detail.slice(0, 500)}`,
       );
     }
 
@@ -184,7 +214,7 @@ async function callOpenRouter(body: ReadingRequest) {
   }
 
   if (!response?.ok) {
-    throw new Error("OpenRouter не повернув успішної відповіді.");
+    throw new Error("OpenRouter did not return a successful response.");
   }
 
   const payload = (await response.json()) as {
@@ -192,47 +222,125 @@ async function callOpenRouter(body: ReadingRequest) {
   };
   const content = payload.choices?.[0]?.message?.content;
   if (!content) {
-    throw new Error("Модель повернула порожню відповідь.");
+    throw new ReadingError("empty");
   }
 
-  return { reading: extractJson(content), model };
+  return { content, model };
+}
+
+function clip(value: unknown, max: number) {
+  return typeof value === "string" ? value.trim().slice(0, max) : "";
+}
+
+function sanitizeTarot(raw: Record<string, unknown>, locale: Locale): TarotRequest | null {
+  const context = clip(raw.context, 4_000);
+  const cards = Array.isArray(raw.cards) ? raw.cards.slice(0, 3) : [];
+  if (!context || cards.length !== 3) return null;
+  return {
+    kind: "tarot",
+    locale,
+    focus: clip(raw.focus, 200) || undefined,
+    situation: clip(raw.situation, 200) || undefined,
+    context,
+    cards: cards.map((card: Record<string, unknown>) => ({
+      name: clip(card?.name, 80),
+      subtitle: clip(card?.subtitle, 120),
+      keyword: clip(card?.keyword, 40),
+      meaning: clip(card?.meaning, 400),
+    })),
+    natalContext: clip(raw.natalContext, 300) || undefined,
+  };
+}
+
+function sanitizeNatal(raw: Record<string, unknown>, locale: Locale): NatalRequest | null {
+  const chart = raw.chart as Partial<ChartSummary> | undefined;
+  if (!chart || !Array.isArray(chart.points) || chart.points.length < 5) return null;
+  const summary: ChartSummary = {
+    hasTime: Boolean(chart.hasTime),
+    houseSystem:
+      chart.houseSystem === "placidus" || chart.houseSystem === "whole" ? chart.houseSystem : null,
+    birth: {
+      date: clip(chart.birth?.date, 20),
+      time: chart.birth?.time ? clip(chart.birth.time, 10) : null,
+      place: clip(chart.birth?.place, 120),
+    },
+    points: chart.points.slice(0, 13).map((point) => ({
+      id: point.id,
+      name: clip(point.name, 40),
+      sign: clip(point.sign, 40),
+      degree: Number.isFinite(point.degree) ? Math.round(Number(point.degree) * 10) / 10 : 0,
+      house: Number.isInteger(point.house) ? (point.house as number) : null,
+      retrograde: Boolean(point.retrograde),
+    })),
+    aspects: (Array.isArray(chart.aspects) ? chart.aspects : []).slice(0, 8).map((aspect) => ({
+      a: clip(aspect.a, 40),
+      b: clip(aspect.b, 40),
+      type: clip(aspect.type, 40),
+      orb: Number.isFinite(aspect.orb) ? Number(aspect.orb) : 0,
+    })),
+  };
+  return { kind: "natal", locale, focus: clip(raw.focus, 300) || undefined, chart: summary };
+}
+
+function validateTarot(reading: TarotReading) {
+  if (
+    !reading.title ||
+    !reading.overview ||
+    !Array.isArray(reading.positions) ||
+    reading.positions.length < 3 ||
+    !Array.isArray(reading.nextSteps) ||
+    !reading.reflectionQuestion
+  ) {
+    throw new ReadingError("incomplete");
+  }
+  return reading;
+}
+
+function validateNatal(reading: NatalReading) {
+  if (
+    !reading.title ||
+    !reading.overview ||
+    !Array.isArray(reading.placements) ||
+    reading.placements.length < 2 ||
+    !reading.tension ||
+    !reading.strength ||
+    !Array.isArray(reading.nextSteps) ||
+    !reading.reflectionQuestion
+  ) {
+    throw new ReadingError("incomplete");
+  }
+  return reading;
+}
+
+function failure(locale: Locale, code: ErrorCode, status: number) {
+  return NextResponse.json({ error: messages[locale].errors[code], code }, { status });
 }
 
 export async function POST(request: Request) {
-  let body: ReadingRequest;
+  let raw: Record<string, unknown>;
   try {
-    body = (await request.json()) as ReadingRequest;
+    raw = (await request.json()) as Record<string, unknown>;
   } catch {
-    return NextResponse.json({ error: "Некоректний JSON у запиті." }, { status: 400 });
+    return failure("ru", "invalid", 400);
   }
 
-  if (!body.context?.trim() || !body.cards || body.cards.length !== 3) {
-    return NextResponse.json(
-      { error: "Потрібні опис ситуації та рівно три карти." },
-      { status: 400 },
-    );
+  const locale: Locale = isLocale(raw.locale) ? raw.locale : "ru";
+  const body: ReadingRequest | null =
+    raw.kind === "natal" ? sanitizeNatal(raw, locale) : sanitizeTarot(raw, locale);
+  if (!body) {
+    return failure(locale, "invalid", 400);
   }
-
-  const sanitized: ReadingRequest = {
-    focus: body.focus?.trim().slice(0, 200),
-    situation: body.situation?.trim().slice(0, 200),
-    context: body.context.trim().slice(0, 4_000),
-    cards: body.cards.slice(0, 3).map((card) => ({
-      name: String(card.name ?? "").slice(0, 80),
-      subtitle: String(card.subtitle ?? "").slice(0, 120),
-      keyword: String(card.keyword ?? "").slice(0, 40),
-      meaning: String(card.meaning ?? "").slice(0, 400),
-    })),
-  };
 
   try {
-    const result = await callOpenRouter(sanitized);
-    return NextResponse.json(result);
+    const prompt = body.kind === "natal" ? natalPrompt(body) : tarotPrompt(body);
+    const { content, model } = await callOpenRouter(prompt);
+    const reading =
+      body.kind === "natal"
+        ? validateNatal(extractJson<NatalReading>(content))
+        : validateTarot(extractJson<TarotReading>(content));
+    return NextResponse.json({ reading, model, kind: body.kind });
   } catch (error) {
     console.error("[api/reading]", error);
-    return NextResponse.json(
-      { error: userFacingError(error) },
-      { status: 502 },
-    );
+    return failure(locale, classifyError(error), 502);
   }
 }

@@ -1,7 +1,7 @@
 {
-  "name": "AURA — Ясність у стосунках",
+  "name": "AURA — Clarity rituals",
   "short_name": "AURA",
-  "description": "Керований ритуал рефлексії з образами таро для ясності у стосунках.",
+  "description": "Guided reflection with tarot imagery and your natal chart. Clarity, not prophecy.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",

@@ -1,4 +1,4 @@
-const CACHE = "aura-v2";
+const CACHE = "aura-v3";
 const SHELL = [
   "/",
   "/manifest.webmanifest",
@@ -27,7 +27,10 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
-  if (request.method !== "GET" || new URL(request.url).pathname.startsWith("/api/")) {
+  const url = new URL(request.url);
+  // Only the app shell is cached: API calls and third-party requests
+  // (geocoding, fonts) always go to the network.
+  if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/")) {
     return;
   }
 

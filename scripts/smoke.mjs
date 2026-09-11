@@ -1,27 +1,66 @@
 import { chromium } from "playwright-core";
 import { mkdir } from "node:fs/promises";
 
-// End-to-end walk through the ritual on a phone-sized viewport.
-// The OpenRouter call is intercepted so the smoke test needs no API key.
-const fixture = {
-  reading: {
-    title: "Шлях до ясності",
-    overview:
-      "Цей розклад не претендує на знання прихованих почуттів іншої людини. Він відображає напруження між вашою потребою у визначеності та інформацією, яка справді доступна.",
-    positions: [
-      { position: "Ваш внутрішній стан", card: "Відлуння", insight: "Помітьте, що повторюється лише у пам’яті." },
-      { position: "Динаміка між вами", card: "Плетиво", insight: "Кілька потреб переплелися. Розділіть їх м’яко." },
-      { position: "Конструктивний наступний крок", card: "Поріг", insight: "Один чесний вибір виведе ситуацію з невизначеності." },
-    ],
-    pattern: "Спільна тема — ваша здатність діяти, навіть коли невизначеність залишається.",
-    nextSteps: [
-      "Запишіть окремо те, що знаєте, що припускаєте і чого потребуєте.",
-      "Оберіть одну спокійну дію, яка дасть нову інформацію.",
-      "Визначте межу, що захищатиме вашу увагу наступного тижня.",
-    ],
-    reflectionQuestion: "Який вибір збереже вашу самоповагу незалежно від відповіді?",
-  },
+// End-to-end walk through both rituals on a phone-sized viewport with the
+// Russian UI. The OpenRouter call and the geocoder are intercepted, so the
+// smoke test needs neither an API key nor network access.
+const tarotFixture = {
+  kind: "tarot",
   model: "smoke-fixture",
+  reading: {
+    title: "Путь к ясности",
+    overview:
+      "Этот расклад не претендует на знание скрытых чувств другого человека. Он отражает напряжение между вашей потребностью в определённости и информацией, которая действительно доступна.",
+    positions: [
+      { position: "Ваше внутреннее состояние", card: "Эхо", insight: "Заметьте, что повторяется лишь в памяти." },
+      { position: "Динамика между вами", card: "Сплетение", insight: "Несколько потребностей переплелись. Разделите их мягко." },
+      { position: "Конструктивный следующий шаг", card: "Порог", insight: "Один честный выбор выведет ситуацию из неопределённости." },
+    ],
+    pattern: "Общая тема — ваша способность действовать, даже когда неопределённость остаётся.",
+    nextSteps: [
+      "Запишите отдельно то, что знаете, что предполагаете и в чём нуждаетесь.",
+      "Выберите одно спокойное действие, которое даст новую информацию.",
+      "Определите границу, которая защитит ваше внимание на следующей неделе.",
+    ],
+    reflectionQuestion: "Какой выбор сохранит ваше самоуважение независимо от ответа?",
+  },
+};
+
+const natalFixture = {
+  kind: "natal",
+  model: "smoke-fixture",
+  reading: {
+    title: "Карта как язык о себе",
+    overview:
+      "Натальная карта здесь — не приговор, а словарь метафор. Положения планет описывают склонности, с которыми можно работать осознанно.",
+    placements: [
+      { label: "Ядро", placement: "Солнце в Близнецах, 12 дом", insight: "Потребность понимать и называть происходящее." },
+      { label: "Чувства", placement: "Луна в Рыбах, 9 дом", insight: "Тонкая восприимчивость к настроению других." },
+      { label: "Образ", placement: "Асцендент в Раке", insight: "Стремление к безопасности в контакте." },
+    ],
+    tension: "Напряжение между желанием всё понять и потребностью просто чувствовать.",
+    strength: "Способность переводить переживания в слова и делиться ими.",
+    nextSteps: [
+      "Назовите одно чувство, которое избегаете формулировать.",
+      "Выберите разговор, в котором можно быть прямым и мягким одновременно.",
+      "Отметьте, когда анализ заменяет действие.",
+    ],
+    reflectionQuestion: "Что вы узнаете о себе, если перестанете объяснять и начнёте замечать?",
+  },
+};
+
+const geocodingFixture = {
+  results: [
+    {
+      id: 703448,
+      name: "Киев",
+      country: "Украина",
+      admin1: "Киев",
+      latitude: 50.45466,
+      longitude: 30.5238,
+      timezone: "Europe/Kyiv",
+    },
+  ],
 };
 
 const baseUrl = process.env.SMOKE_URL ?? "http://localhost:3000";
@@ -32,10 +71,21 @@ const page = await browser.newPage({
   deviceScaleFactor: 1,
   isMobile: true,
   hasTouch: true,
+  locale: "ru-RU",
 });
 
-await page.route("**/api/reading", (route) =>
-  route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(fixture) }),
+await page.addInitScript(() => {
+  localStorage.setItem("aura-locale", "ru");
+});
+
+await page.route("**/api/reading", (route) => {
+  const body = route.request().postDataJSON();
+  const fixture = body?.kind === "natal" ? natalFixture : tarotFixture;
+  return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(fixture) });
+});
+
+await page.route("**/geocoding-api.open-meteo.com/**", (route) =>
+  route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(geocodingFixture) }),
 );
 
 const consoleErrors = [];
@@ -48,15 +98,16 @@ await page.goto(baseUrl, { waitUntil: "networkidle" });
 await page.waitForTimeout(600);
 await page.screenshot({ path: "artifacts/home-mobile.png", fullPage: true });
 
-await page.getByLabel("Фокус рефлексії").fill("мовчання після нашої останньої розмови");
-await page.getByRole("button", { name: "Почати ритуал" }).click();
-await page.getByRole("button", { name: /Я постійно думаю/ }).click();
-await page.getByRole("button", { name: "Продовжити" }).click();
-await page.getByRole("button", { name: "Я розумію" }).click();
-await page.getByLabel("Ваша історія").fill(
-  "Ми майже не спілкуємося вже два тижні. Я намагаюся тлумачити кожну коротку відповідь і хочу діяти, не втрачаючи самоповаги.",
+// --- Tarot ritual ---------------------------------------------------------
+await page.getByLabel("Фокус рефлексии").fill("молчание после нашего последнего разговора");
+await page.getByRole("button", { name: "Начать ритуал таро" }).click();
+await page.getByRole("button", { name: /Я постоянно думаю/ }).click();
+await page.getByRole("button", { name: "Продолжить" }).click();
+await page.getByRole("button", { name: "Я понимаю" }).click();
+await page.getByLabel("Ваша история").fill(
+  "Мы почти не общаемся уже две недели. Я пытаюсь толковать каждый короткий ответ и хочу действовать, не теряя самоуважения.",
 );
-await page.getByRole("button", { name: "Продовжити" }).click();
+await page.getByRole("button", { name: "Продолжить" }).click();
 
 const deckCards = page.locator(".card-back");
 for (let index = 0; index < 3; index += 1) {
@@ -64,13 +115,13 @@ for (let index = 0; index < 3; index += 1) {
 }
 await page.screenshot({ path: "artifacts/deck-mobile.png", fullPage: true });
 
-await page.getByRole("button", { name: "Відкрити розклад" }).click();
+await page.getByRole("button", { name: "Открыть расклад" }).click();
 if ((await page.locator(".card-face").count()) !== 3) {
   throw new Error("Expected exactly three revealed cards.");
 }
 
-await page.getByRole("button", { name: "Створити рефлексію" }).click();
-await page.getByRole("heading", { name: fixture.reading.title }).waitFor({
+await page.getByRole("button", { name: "Создать рефлексию" }).click();
+await page.getByRole("heading", { name: tarotFixture.reading.title }).waitFor({
   state: "visible",
   timeout: 15_000,
 });
@@ -78,16 +129,39 @@ await page.waitForTimeout(700);
 await page.evaluate(() => window.scrollTo(0, 0));
 await page.screenshot({ path: "artifacts/reading-mobile.png", fullPage: true });
 const insightRows = await page.locator(".insight-row").count();
+await page.getByRole("button", { name: "Новый ритуал" }).click();
 
-// The reading must land in the on-device archive.
-await page.getByRole("button", { name: "Новий ритуал" }).click();
-await page.getByRole("button", { name: "Архів" }).click();
+// --- Natal chart ----------------------------------------------------------
+await page.getByRole("button", { name: /Натальная карта/ }).click();
+await page.getByLabel("Дата рождения").fill("1990-06-15");
+await page.getByLabel("Время рождения").fill("08:30");
+await page.getByLabel("Место рождения").fill("Киев");
+await page.getByRole("button", { name: /Киев/ }).first().click();
+await page.getByRole("button", { name: "Рассчитать карту" }).click();
+await page.locator(".wheel").waitFor({ state: "visible", timeout: 10_000 });
+const planetRows = await page.locator(".glyph-icon").count();
+await page.waitForTimeout(500);
+await page.screenshot({ path: "artifacts/natal-chart-mobile.png", fullPage: true });
+
+await page.getByRole("button", { name: "Создать рефлексию" }).click();
+await page.getByRole("heading", { name: natalFixture.reading.title }).waitFor({
+  state: "visible",
+  timeout: 15_000,
+});
+await page.waitForTimeout(700);
+await page.evaluate(() => window.scrollTo(0, 0));
+await page.screenshot({ path: "artifacts/natal-reading-mobile.png", fullPage: true });
+await page.getByRole("button", { name: "Новый ритуал" }).click();
+
+// Both readings must land in the on-device archive.
+await page.getByRole("button", { name: "Архив" }).click();
 const archived = await page.locator(".row").count();
 
 const result = {
   title: await page.title(),
   url: page.url(),
   insightRows,
+  planetRows,
   archivedReadings: archived,
   consoleErrors,
 };
@@ -95,6 +169,6 @@ const result = {
 console.log(JSON.stringify(result, null, 2));
 await browser.close();
 
-if (archived < 1) {
-  throw new Error("Expected the reading to be archived.");
-}
+if (insightRows !== 3) throw new Error("Expected three tarot insight rows.");
+if (planetRows < 12) throw new Error("Expected the natal chart to list the planets.");
+if (archived < 2) throw new Error("Expected both readings to be archived.");
