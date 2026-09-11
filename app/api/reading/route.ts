@@ -5,6 +5,8 @@ export const maxDuration = 120;
 
 const OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 const DEFAULT_MODEL = "google/gemma-4-26b-a4b-it:free";
+const DEFAULT_MAX_TOKENS = 4_000;
+const DEFAULT_REASONING = "low";
 const MAX_ATTEMPTS = 3;
 
 type ReadingRequest = {
@@ -86,14 +88,15 @@ function buildPrompt(body: ReadingRequest) {
 Пиши стисло: overview — до 120 слів, кожен insight — до 70 слів, кожен наступний крок — одне речення.
 Вичитай граматику й уникай кальок, штучних слів і незавершених речень.
 Не перекладай назви JSON-полів. Не додавай markdown, пояснення чи міркування поза JSON. Перший символ відповіді — {, останній — }.
+У полі card вказуй точну назву карти з поля name у spread (не keyword і не subtitle), у тому самому порядку, що й у spread.
 Поверни валідний JSON точно такої структури:
 {
   "title": "короткий образний заголовок українською",
   "overview": "2–3 абзаци українською в одному рядку",
   "positions": [
-    {"position":"Ваш внутрішній стан","card":"назва карти","insight":"конкретна рефлексія українською"},
-    {"position":"Динаміка між вами","card":"назва карти","insight":"конкретна рефлексія українською"},
-    {"position":"Конструктивний наступний крок","card":"назва карти","insight":"конкретна рефлексія українською"}
+    {"position":"Ваш внутрішній стан","card":"name першої карти","insight":"конкретна рефлексія українською"},
+    {"position":"Динаміка між вами","card":"name другої карти","insight":"конкретна рефлексія українською"},
+    {"position":"Конструктивний наступний крок","card":"name третьої карти","insight":"конкретна рефлексія українською"}
   ],
   "pattern": "синтез трьох карт українською",
   "nextSteps": ["дія 1","дія 2","дія 3"],
@@ -116,6 +119,18 @@ function wait(milliseconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
+// OpenRouter's unified reasoning parameter. Some models (Gemini 3.x among
+// them) reject `enabled: false`, so reasoning stays on at low effort by
+// default; OPENROUTER_REASONING=none switches it off for models that allow it.
+function reasoningConfig() {
+  const effort = (process.env.OPENROUTER_REASONING ?? DEFAULT_REASONING).trim().toLowerCase();
+  if (effort === "none") {
+    return { reasoning: { enabled: false } };
+  }
+  const level = ["low", "medium", "high"].includes(effort) ? effort : DEFAULT_REASONING;
+  return { reasoning: { effort: level, exclude: true } };
+}
+
 async function callOpenRouter(body: ReadingRequest) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
@@ -124,7 +139,7 @@ async function callOpenRouter(body: ReadingRequest) {
 
   const model = process.env.OPENROUTER_MODEL ?? DEFAULT_MODEL;
   const timeoutMs = Number(process.env.OPENROUTER_TIMEOUT_MS ?? 90_000);
-  const maxTokens = Number(process.env.OPENROUTER_MAX_TOKENS ?? 1_600);
+  const maxTokens = Number(process.env.OPENROUTER_MAX_TOKENS ?? DEFAULT_MAX_TOKENS);
 
   const requestOptions: RequestInit = {
     method: "POST",
@@ -140,8 +155,7 @@ async function callOpenRouter(body: ReadingRequest) {
       temperature: 0.6,
       max_tokens: maxTokens,
       stream: false,
-      reasoning: { enabled: false },
-      include_reasoning: false,
+      ...reasoningConfig(),
       response_format: { type: "json_object" },
     }),
     signal: AbortSignal.timeout(timeoutMs),

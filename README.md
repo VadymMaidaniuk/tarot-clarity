@@ -43,9 +43,15 @@ Set these environment variables in the Vercel project:
 OPENROUTER_API_KEY=your_server_side_key
 OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free
 OPENROUTER_TIMEOUT_MS=90000
-OPENROUTER_MAX_TOKENS=1600
+OPENROUTER_MAX_TOKENS=4000
+OPENROUTER_REASONING=low
 APP_URL=https://your-domain.example
 ```
+
+`OPENROUTER_REASONING` accepts `low` (default), `medium`, `high` or `none`.
+Reasoning tokens count toward `OPENROUTER_MAX_TOKENS` on thinking models, so
+keep the budget generous. `APP_URL` is optional; it is only sent to OpenRouter
+as the referer for usage attribution.
 
 The key is read only inside the API route and never reaches the browser. The
 user's story is sent to the model for generation only and is not stored on the
