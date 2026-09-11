@@ -1,11 +1,11 @@
 {
-  "name": "AURA — Ритуал емоційної ясності",
+  "name": "AURA — Ясність у стосунках",
   "short_name": "AURA",
   "description": "Керований ритуал рефлексії з образами таро для ясності у стосунках.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0e14",
-  "theme_color": "#0a0e14",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -18,7 +18,13 @@
       "src": "/icons/aura-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/aura-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
