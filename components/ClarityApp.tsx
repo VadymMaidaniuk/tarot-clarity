@@ -61,17 +61,25 @@ type ArchivedNatal = {
 
 type ArchivedReading = ArchivedTarot | ArchivedNatal;
 
-const TAROT_STEPS = 6;
+const TAROT_STEPS = 5;
 const NATAL_STEPS = 3;
+const ONBOARDING_PAGES = 4;
 const ARCHIVE_LIMIT = 30;
 const STORAGE_ARCHIVE = "aura-archive";
 const STORAGE_THEME = "aura-theme";
 const STORAGE_BIRTH = "aura-birth";
 const STORAGE_ENRICH = "aura-enrich";
+const STORAGE_ONBOARDED = "aura-onboarded";
 
-const featureIcons: IconName[] = ["lock", "heart", "arrow-right"];
 const principleIcons: IconName[] = ["anchor", "layers", "checkmark-circle"];
 const bigThree: PointId[] = ["sun", "moon", "asc"];
+const hourOptions = Array.from({ length: 24 }, (_, index) => String(index).padStart(2, "0"));
+const minuteOptions = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, "0"));
+const dayOptions = Array.from({ length: 31 }, (_, index) => String(index + 1).padStart(2, "0"));
+const yearOptions = Array.from(
+  { length: new Date().getFullYear() - 1900 + 1 },
+  (_, index) => String(new Date().getFullYear() - index),
+);
 
 function cssVars(vars: Record<string, number | string>) {
   return vars as React.CSSProperties;
@@ -283,6 +291,22 @@ function FeatureList({
   );
 }
 
+function NumberedList({ items }: { items: ReadonlyArray<{ title: string; text: string }> }) {
+  return (
+    <div className="numbered">
+      {items.map((item, index) => (
+        <div className="numbered-item" key={item.title}>
+          <span className="insight-num">{index + 1}</span>
+          <div>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Switch({
   checked,
   onChange,
@@ -312,6 +336,9 @@ export default function ClarityApp() {
   const [mode, setMode] = useState<Mode>("tarot");
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const [onboardingPage, setOnboardingPage] = useState(0);
+  const [onboardingReplay, setOnboardingReplay] = useState(false);
 
   const [focus, setFocus] = useState("");
   const [situation, setSituation] = useState(-1);
@@ -369,6 +396,7 @@ export default function ClarityApp() {
       setArchive(loadArchive());
       setBirth(loadBirth());
       setEnrich(localStorage.getItem(STORAGE_ENRICH) !== "false");
+      if (localStorage.getItem(STORAGE_ONBOARDED) !== "true") setOnboardingOpen(true);
     } catch {
       // Storage is optional: private mode may disable it.
     }
@@ -422,8 +450,9 @@ export default function ClarityApp() {
     }
   }, [enrich, mounted]);
 
+  const overlayOpen = settingsOpen || onboardingOpen;
   useEffect(() => {
-    document.body.classList.toggle("sheet-open", settingsOpen);
+    document.body.classList.toggle("sheet-open", overlayOpen);
     if (!settingsOpen) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setSettingsOpen(false);
@@ -433,7 +462,7 @@ export default function ClarityApp() {
       window.removeEventListener("keydown", onKey);
       document.body.classList.remove("sheet-open");
     };
-  }, [settingsOpen]);
+  }, [settingsOpen, overlayOpen]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 48);
@@ -514,6 +543,24 @@ export default function ClarityApp() {
     }
   }
 
+  function finishOnboarding() {
+    try {
+      localStorage.setItem(STORAGE_ONBOARDED, "true");
+    } catch {
+      // Ignore storage failures.
+    }
+    setOnboardingOpen(false);
+    setOnboardingPage(0);
+    setOnboardingReplay(false);
+  }
+
+  function openOnboarding() {
+    setSettingsOpen(false);
+    setOnboardingReplay(true);
+    setOnboardingPage(0);
+    setOnboardingOpen(true);
+  }
+
   function clearReadingState() {
     abortRef.current?.abort();
     setTarotReading(null);
@@ -589,7 +636,7 @@ export default function ClarityApp() {
   function startDeck() {
     setDeck(shuffle(cards.map((card) => card.id)));
     setSelectedIds([]);
-    goTo(4);
+    goTo(3);
   }
 
   function chooseCard(cardId: string) {
@@ -601,6 +648,23 @@ export default function ClarityApp() {
       return [...current, cardId];
     });
   }
+
+  const [hourValue = "", minuteValue = ""] = draftTime.split(":");
+  const [yearValue = "", monthValue = "", dayValue = ""] = draftDate.split("-");
+
+  function updateTime(hour: string, minute: string) {
+    setDraftTime(hour || minute ? `${hour}:${minute}` : "");
+  }
+
+  function updateDate(year: string, month: string, day: string) {
+    setDraftDate(year || month || day ? `${year}-${month}-${day}` : "");
+  }
+
+  // Standalone month names in the UI language (nominative case for ru/uk).
+  const monthNames = useMemo(() => {
+    const formatter = new Intl.DateTimeFormat(t.tag, { month: "long" });
+    return Array.from({ length: 12 }, (_, index) => formatter.format(new Date(2000, index, 1)));
+  }, [t.tag]);
 
   const birthFormValid =
     isValidDateString(draftDate) &&
@@ -660,7 +724,7 @@ export default function ClarityApp() {
 
   async function generateTarotReading() {
     setTarotReading(null);
-    goTo(6);
+    goTo(TAROT_STEPS);
     const natalContext =
       enrich && birth ? natalDigest(chart ?? buildChart(birth), t) : undefined;
     const outcome = await requestReading({
@@ -690,7 +754,7 @@ export default function ClarityApp() {
   async function generateNatalReading() {
     if (!chart || !birth) return;
     setNatalReading(null);
-    goTo(3);
+    goTo(NATAL_STEPS);
     const outcome = await requestReading({
       kind: "natal",
       focus: natalFocus,
@@ -729,13 +793,13 @@ export default function ClarityApp() {
       setMode("natal");
       setNatalReading(item.reading);
       setNatalFocus(item.focus);
-      goTo(3);
+      goTo(NATAL_STEPS);
     } else {
       setMode("tarot");
       setFocus(item.focus);
       setSelectedIds(item.cardIds);
       setTarotReading(item.reading);
-      goTo(6);
+      goTo(TAROT_STEPS);
     }
   }
 
@@ -789,10 +853,11 @@ export default function ClarityApp() {
   const showTabBar = step === 0;
   const contextReady = context.trim().length >= 12;
   const totalSteps = mode === "natal" ? NATAL_STEPS : TAROT_STEPS;
-  const readingStep = mode === "natal" ? 3 : 6;
+  const readingStep = mode === "natal" ? NATAL_STEPS : TAROT_STEPS;
   const onReading = inFlow && step === readingStep;
   const currentReading = mode === "natal" ? natalReading : tarotReading;
   const readingReady = onReading && Boolean(currentReading) && !loading;
+  const stepCaption = inFlow && !onReading ? t.steps(step, totalSteps) : "";
 
   const footer = (() => {
     if (!inFlow) return null;
@@ -829,29 +894,23 @@ export default function ClarityApp() {
         );
       case 2:
         return (
-          <button className="btn" onClick={() => goTo(3)}>
-            {t.principles.cta}
-          </button>
-        );
-      case 3:
-        return (
           <button className="btn" disabled={!contextReady} onClick={startDeck}>
             {t.story.continue}
           </button>
         );
-      case 4:
+      case 3:
         return (
-          <button className="btn" disabled={selectedIds.length < 3} onClick={() => goTo(5)}>
+          <button className="btn" disabled={selectedIds.length < 3} onClick={() => goTo(4)}>
             {t.deck.reveal}
           </button>
         );
-      case 5:
+      case 4:
         return (
           <button className="btn" onClick={generateTarotReading}>
             {t.spread.create}
           </button>
         );
-      case 6:
+      case 5:
         return readingReady && origin === "flow" ? (
           <button className="btn" onClick={resetRitual}>
             {t.reading.newRitual}
@@ -868,9 +927,7 @@ export default function ClarityApp() {
     if (mode === "natal") {
       return [t.nav.natalForm, t.nav.natalChart, t.nav.reading][step - 1];
     }
-    return [t.nav.situation, t.nav.principles, t.nav.story, t.nav.deck, t.nav.spread, t.nav.reading][
-      step - 1
-    ];
+    return [t.nav.situation, t.nav.story, t.nav.deck, t.nav.spread, t.nav.reading][step - 1];
   })();
 
   function handleBack() {
@@ -886,9 +943,7 @@ export default function ClarityApp() {
     goTo(step - 1);
   }
 
-  const birthSummary = birth
-    ? `${formatBirthDate(birth.date, t.tag)} · ${birth.place.name}`
-    : t.home.natalEmpty;
+  const birthSummary = birth ? `${formatBirthDate(birth.date, t.tag)} · ${birth.place.name}` : "";
 
   if (!mounted) {
     return <div className="app" aria-hidden="true" />;
@@ -925,6 +980,60 @@ export default function ClarityApp() {
     }
     const created = archivedItem ? `${formatDate(archivedItem.createdAt, t.tag)} · ` : "";
     return `${created}${selectedCards.map((card) => cardText(card, locale).name).join(" · ")}`;
+  })();
+
+  const onboardingContent = (() => {
+    switch (onboardingPage) {
+      case 0:
+        return (
+          <>
+            <div className="hero centered">
+              <div className="app-mark">
+                <Icon name="sparkles" size={38} strokeWidth={1.5} />
+              </div>
+              <h2 className="title-1">{t.onboarding.welcome.title}</h2>
+              <p>{t.onboarding.welcome.text}</p>
+            </div>
+            <FeatureList items={t.principles.items} icons={principleIcons} />
+          </>
+        );
+      case 1:
+        return (
+          <>
+            <div className="hero centered">
+              <div className="app-mark">
+                <Icon name="layers" size={36} strokeWidth={1.5} />
+              </div>
+              <h2 className="title-1">{t.onboarding.tarot.title}</h2>
+            </div>
+            <NumberedList items={t.onboarding.tarot.steps} />
+          </>
+        );
+      case 2:
+        return (
+          <>
+            <div className="hero centered">
+              <div className="app-mark warm">
+                <Icon name="orbit" size={36} strokeWidth={1.5} />
+              </div>
+              <h2 className="title-1">{t.onboarding.natal.title}</h2>
+            </div>
+            <NumberedList items={t.onboarding.natal.steps} />
+          </>
+        );
+      default:
+        return (
+          <>
+            <div className="hero centered">
+              <div className="app-mark">
+                <Icon name="lock" size={34} strokeWidth={1.5} />
+              </div>
+              <h2 className="title-1">{t.onboarding.privacy.title}</h2>
+            </div>
+            <NumberedList items={t.onboarding.privacy.steps} />
+          </>
+        );
+    }
   })();
 
   return (
@@ -1026,67 +1135,49 @@ export default function ClarityApp() {
 
         {tab === "ritual" && step === 0 && (
           <section className="screen content" key="home">
-            <div className="hero centered">
-              <div className="app-mark">
-                <Icon name="sparkles" size={38} strokeWidth={1.5} />
-              </div>
-              <h2 className="title-1">{t.home.title}</h2>
+            <div className="hero">
+              <h2 className="large-title">{t.home.title}</h2>
               <p>{t.home.subtitle}</p>
             </div>
             <div className="stack">
-              <div>
-                <div className="section-label">{t.home.tarotSection}</div>
-                <div className="group">
-                  <div className="field">
-                    <input
-                      id="focus"
-                      aria-label={t.home.focusLabel}
-                      value={focus}
-                      onChange={(event) => setFocus(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") startTarot();
-                      }}
-                      placeholder={t.home.focusPlaceholder}
-                      enterKeyHint="go"
-                      maxLength={200}
-                      autoComplete="off"
-                    />
-                  </div>
-                  <div className="chips">
-                    {t.home.chips.map((chip) => (
-                      <button
-                        key={chip}
-                        className="chip"
-                        aria-pressed={focus === chip}
-                        onClick={() => setFocus(focus === chip ? "" : chip)}
-                      >
-                        {chip}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="section-footer">{t.home.focusFooter}</div>
+              <div className="options">
+                <button className="option-card" onClick={startTarot}>
+                  <span className="option-icon">
+                    <Icon name="layers" size={28} strokeWidth={1.7} />
+                  </span>
+                  <span>
+                    <span className="option-title">{t.home.tarot.title}</span>
+                    <span className="option-text">{t.home.tarot.description}</span>
+                    <span className="option-meta">{t.home.tarot.meta}</span>
+                  </span>
+                  <Icon name="chevron-right" className="row-chevron" size={16} strokeWidth={2.4} />
+                </button>
+                <button className="option-card" onClick={() => openNatal()}>
+                  <span className="option-icon warm">
+                    <Icon name="orbit" size={28} strokeWidth={1.7} />
+                  </span>
+                  <span>
+                    <span className="option-title">{t.home.natal.title}</span>
+                    <span className="option-text">{t.home.natal.description}</span>
+                    <span className="option-meta">
+                      {birth ? `${t.home.natal.profile}${birthSummary}` : t.home.natal.meta}
+                    </span>
+                  </span>
+                  <Icon name="chevron-right" className="row-chevron" size={16} strokeWidth={2.4} />
+                </button>
               </div>
-              <button className="btn" onClick={startTarot}>
-                {t.home.start}
-              </button>
               <div>
-                <div className="section-label">{t.home.natalSection}</div>
                 <div className="group">
-                  <button className="row with-icon" onClick={() => openNatal()}>
-                    <span className="row-icon">
-                      <Icon name="orbit" size={18} strokeWidth={1.9} />
+                  <button className="row with-icon" onClick={openOnboarding}>
+                    <span className="row-icon gray">
+                      <Icon name="checkmark-circle" size={17} strokeWidth={2} />
                     </span>
-                    <span>
-                      <span className="row-title">{t.home.natalTitle}</span>
-                      <span className="row-subtitle">{birthSummary}</span>
-                    </span>
+                    <span className="row-title">{t.home.howItWorks}</span>
                     <Icon name="chevron-right" className="row-chevron" size={16} strokeWidth={2.4} />
                   </button>
                 </div>
-                <div className="section-footer">{t.home.natalFooter}</div>
+                <div className="section-footer">{t.home.footer}</div>
               </div>
-              <FeatureList items={t.home.features} icons={featureIcons} />
             </div>
           </section>
         )}
@@ -1094,6 +1185,7 @@ export default function ClarityApp() {
         {tab === "ritual" && mode === "tarot" && step === 1 && (
           <section className="screen content" key="situation">
             <div className="hero">
+              <div className="step-caption">{stepCaption}</div>
               <h2 className="title-1">{t.situation.title}</h2>
               <p>{t.situation.subtitle}</p>
             </div>
@@ -1119,43 +1211,56 @@ export default function ClarityApp() {
         )}
 
         {tab === "ritual" && mode === "tarot" && step === 2 && (
-          <section className="screen content" key="principles">
-            <div className="hero centered">
-              <h2 className="title-1">{t.principles.title}</h2>
-              <p>{t.principles.subtitle}</p>
+          <section className="screen content" key="context">
+            <div className="hero">
+              <div className="step-caption">{stepCaption}</div>
+              <h2 className="title-1">{t.story.title}</h2>
+              <p>{t.story.subtitle}</p>
             </div>
-            <FeatureList items={t.principles.items} icons={principleIcons} />
+            <div className="stack">
+              <div>
+                <div className="group">
+                  <textarea
+                    className="textarea"
+                    id="context"
+                    aria-label={t.story.label}
+                    value={context}
+                    onChange={(event) => setContext(event.target.value)}
+                    placeholder={t.story.placeholder}
+                    maxLength={4000}
+                    rows={7}
+                  />
+                </div>
+                <div className="section-footer between">
+                  <span>{contextReady ? t.story.privacyHint : t.story.minHint}</span>
+                  <span>{context.length} / 4000</span>
+                </div>
+              </div>
+              <div>
+                <div className="section-label">{t.story.focusLabel}</div>
+                <div className="group">
+                  <div className="chips" style={{ paddingTop: 14 }}>
+                    {t.story.chips.map((chip) => (
+                      <button
+                        key={chip}
+                        className="chip"
+                        aria-pressed={focus === chip}
+                        onClick={() => setFocus(focus === chip ? "" : chip)}
+                      >
+                        {chip}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
         )}
 
         {tab === "ritual" && mode === "tarot" && step === 3 && (
-          <section className="screen content" key="context">
-            <div className="hero">
-              <h2 className="title-1">{t.story.title}</h2>
-              <p>{t.story.subtitle}</p>
-            </div>
-            <div className="group">
-              <textarea
-                className="textarea"
-                id="context"
-                aria-label={t.story.label}
-                value={context}
-                onChange={(event) => setContext(event.target.value)}
-                placeholder={t.story.placeholder}
-                maxLength={4000}
-                rows={8}
-              />
-            </div>
-            <div className="section-footer between">
-              <span>{contextReady ? t.story.privacyHint : t.story.minHint}</span>
-              <span>{context.length} / 4000</span>
-            </div>
-          </section>
-        )}
-
-        {tab === "ritual" && mode === "tarot" && step === 4 && (
           <section className="screen content" key="deck">
             <div className="hero">
+              <div className="step-caption">{stepCaption}</div>
               <h2 className="title-1">{t.deck.title}</h2>
               <p>{t.deck.subtitle}</p>
             </div>
@@ -1188,9 +1293,10 @@ export default function ClarityApp() {
           </section>
         )}
 
-        {tab === "ritual" && mode === "tarot" && step === 5 && (
+        {tab === "ritual" && mode === "tarot" && step === 4 && (
           <section className="screen content" key="reveal">
             <div className="hero">
+              <div className="step-caption">{stepCaption}</div>
               <h2 className="title-1">{t.spread.title}</h2>
               <p>{t.spread.subtitle}</p>
             </div>
@@ -1223,39 +1329,113 @@ export default function ClarityApp() {
         {tab === "ritual" && mode === "natal" && step === 1 && (
           <section className="screen content" key="birth">
             <div className="hero">
+              <div className="step-caption">{stepCaption}</div>
               <h2 className="title-1">{t.natal.formTitle}</h2>
               <p>{t.natal.formSubtitle}</p>
             </div>
             <div className="stack">
               <div>
                 <div className="group">
-                  <label className="row with-icon input-row">
+                  <div className="row with-icon input-row">
                     <span className="row-icon">
                       <Icon name="calendar" size={17} strokeWidth={2} />
                     </span>
                     <span className="row-title">{t.natal.date}</span>
-                    <input
-                      type="date"
-                      aria-label={t.natal.date}
-                      value={draftDate}
-                      max={new Date().toISOString().slice(0, 10)}
-                      min="1900-01-01"
-                      onChange={(event) => setDraftDate(event.target.value)}
-                    />
-                  </label>
-                  <label className="row with-icon input-row">
+                    {t.clock24 ? (
+                      <span className="time-select">
+                        <select
+                          aria-label={t.natal.day}
+                          value={dayValue}
+                          onChange={(event) => updateDate(yearValue, monthValue, event.target.value)}
+                        >
+                          <option value="">––</option>
+                          {dayOptions.map((day) => (
+                            <option key={day} value={day}>
+                              {Number(day)}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          aria-label={t.natal.month}
+                          value={monthValue}
+                          onChange={(event) => updateDate(yearValue, event.target.value, dayValue)}
+                        >
+                          <option value="">––</option>
+                          {monthNames.map((name, index) => (
+                            <option key={name} value={String(index + 1).padStart(2, "0")}>
+                              {name}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          aria-label={t.natal.year}
+                          value={yearValue}
+                          onChange={(event) => updateDate(event.target.value, monthValue, dayValue)}
+                        >
+                          <option value="">––</option>
+                          {yearOptions.map((year) => (
+                            <option key={year} value={year}>
+                              {year}
+                            </option>
+                          ))}
+                        </select>
+                      </span>
+                    ) : (
+                      <input
+                        type="date"
+                        aria-label={t.natal.date}
+                        value={draftDate}
+                        max={new Date().toISOString().slice(0, 10)}
+                        min="1900-01-01"
+                        onChange={(event) => setDraftDate(event.target.value)}
+                      />
+                    )}
+                  </div>
+                  <div className="row with-icon input-row">
                     <span className="row-icon teal">
                       <Icon name="clock" size={17} strokeWidth={2} />
                     </span>
                     <span className="row-title">{t.natal.time}</span>
-                    <input
-                      type="time"
-                      aria-label={t.natal.time}
-                      value={draftTime}
-                      disabled={timeUnknown}
-                      onChange={(event) => setDraftTime(event.target.value)}
-                    />
-                  </label>
+                    {t.clock24 ? (
+                      <span className="time-select">
+                        <select
+                          aria-label={t.natal.hour}
+                          value={hourValue}
+                          disabled={timeUnknown}
+                          onChange={(event) => updateTime(event.target.value, minuteValue)}
+                        >
+                          <option value="">––</option>
+                          {hourOptions.map((hour) => (
+                            <option key={hour} value={hour}>
+                              {hour}
+                            </option>
+                          ))}
+                        </select>
+                        <span className={`colon ${timeUnknown ? "disabled" : ""}`}>:</span>
+                        <select
+                          aria-label={t.natal.minute}
+                          value={minuteValue}
+                          disabled={timeUnknown}
+                          onChange={(event) => updateTime(hourValue, event.target.value)}
+                        >
+                          <option value="">––</option>
+                          {minuteOptions.map((minute) => (
+                            <option key={minute} value={minute}>
+                              {minute}
+                            </option>
+                          ))}
+                        </select>
+                      </span>
+                    ) : (
+                      <input
+                        type="time"
+                        aria-label={t.natal.time}
+                        value={draftTime}
+                        disabled={timeUnknown}
+                        onChange={(event) => setDraftTime(event.target.value)}
+                      />
+                    )}
+                  </div>
                   <div className="row with-icon">
                     <span className="row-icon gray">
                       <Icon name="clock" size={17} strokeWidth={2} />
@@ -1332,6 +1512,7 @@ export default function ClarityApp() {
         {tab === "ritual" && mode === "natal" && step === 2 && chart && birth && (
           <section className="screen content" key="chart">
             <div className="hero">
+              <div className="step-caption">{stepCaption}</div>
               <h2 className="title-1">{t.natal.chartTitle}</h2>
               <p>
                 {[formatBirthDate(birth.date, t.tag), birth.time, formatPlace(birth.place)]
@@ -1344,14 +1525,12 @@ export default function ClarityApp() {
                 <ChartWheel chart={chart} label={t.natal.chartTitle} />
               </div>
 
-              {!chart.hasTime && (
-                <div className="group">
-                  <div className="notice-row">
-                    <Icon name="clock" size={18} strokeWidth={1.9} />
-                    <span>{t.natal.noTime}</span>
-                  </div>
+              <div className="group">
+                <div className="notice-row">
+                  <Icon name={chart.hasTime ? "checkmark-circle" : "clock"} size={18} strokeWidth={1.9} />
+                  <span>{chart.hasTime ? t.natal.chartSubtitle : t.natal.noTime}</span>
                 </div>
-              )}
+              </div>
 
               <div>
                 <div className="section-label">{t.natal.bigThree}</div>
@@ -1661,6 +1840,19 @@ export default function ClarityApp() {
               </div>
 
               <div>
+                <div className="section-label">{t.settings.help}</div>
+                <div className="group">
+                  <button className="row with-icon" onClick={openOnboarding}>
+                    <span className="row-icon gray">
+                      <Icon name="checkmark-circle" size={17} strokeWidth={2} />
+                    </span>
+                    <span className="row-title">{t.home.howItWorks}</span>
+                    <Icon name="chevron-right" className="row-chevron" size={16} strokeWidth={2.4} />
+                  </button>
+                </div>
+              </div>
+
+              <div>
                 <div className="section-label">{t.settings.birth}</div>
                 <div className="group">
                   <button className="row with-icon" onClick={() => openNatal(true)}>
@@ -1744,6 +1936,44 @@ export default function ClarityApp() {
               </div>
             </div>
           </section>
+        </div>
+      )}
+
+      {onboardingOpen && (
+        <div className="onboarding" role="dialog" aria-modal="true" aria-label={t.onboarding.welcome.title}>
+          <div className="onboarding-top">
+            {onboardingPage < ONBOARDING_PAGES - 1 && (
+              <button className="nav-button" onClick={finishOnboarding}>
+                {t.onboarding.skip}
+              </button>
+            )}
+          </div>
+          <div className="onboarding-body">
+            <section className="screen content" key={`onboarding-${onboardingPage}`} style={cssVars({ "--dir": 1 })}>
+              {onboardingContent}
+            </section>
+          </div>
+          <div className="onboarding-footer">
+            <div className="page-dots" aria-hidden="true">
+              {Array.from({ length: ONBOARDING_PAGES }, (_, index) => (
+                <i key={index} className={index === onboardingPage ? "on" : ""} />
+              ))}
+            </div>
+            <button
+              className="btn"
+              onClick={() =>
+                onboardingPage < ONBOARDING_PAGES - 1
+                  ? setOnboardingPage((page) => page + 1)
+                  : finishOnboarding()
+              }
+            >
+              {onboardingPage < ONBOARDING_PAGES - 1
+                ? t.onboarding.next
+                : onboardingReplay
+                  ? t.onboarding.done
+                  : t.onboarding.start}
+            </button>
+          </div>
         </div>
       )}
 

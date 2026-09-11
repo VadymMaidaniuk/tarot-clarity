@@ -1571,3 +1571,204 @@ main {
   width: auto;
   max-width: 100%;
 }
+
+/* ---------------------------------------------------------------------------
+   Onboarding, ritual chooser, step captions, 24-hour time picker
+   --------------------------------------------------------------------------- */
+.onboarding {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--bg);
+  padding-top: env(safe-area-inset-top);
+}
+
+.onboarding-top {
+  display: flex;
+  justify-content: flex-end;
+  height: 44px;
+  padding: 0 max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left));
+}
+
+.onboarding-body {
+  overflow-y: auto;
+  overflow-x: clip;
+}
+
+.onboarding-body .hero.centered {
+  padding-top: 8px;
+}
+
+.onboarding-body .hero.centered .app-mark {
+  margin-top: 24px;
+}
+
+.onboarding-footer {
+  display: grid;
+  gap: 18px;
+  justify-items: center;
+  padding: 12px max(20px, env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
+}
+
+.onboarding-footer .btn {
+  max-width: 640px;
+}
+
+.page-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.page-dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fill);
+  transition: background 200ms ease, transform 200ms ease;
+}
+
+.page-dots i.on {
+  background: var(--tint);
+  transform: scale(1.15);
+}
+
+.numbered {
+  display: grid;
+  gap: 18px;
+  padding: 8px 4px;
+}
+
+.numbered-item {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.numbered-item h3 {
+  margin-bottom: 2px;
+  font-size: 17px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.numbered-item p {
+  color: var(--label-2);
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.options {
+  display: grid;
+  gap: 14px;
+}
+
+.option-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--bg-elevated);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-border);
+  color: inherit;
+  text-align: left;
+  transition: transform 150ms ease;
+}
+
+.option-card:active {
+  transform: scale(0.98);
+}
+
+.option-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #8583ff, #5654d4 55%, #2f2c9c);
+  color: #fff;
+}
+
+.option-icon.warm {
+  background: linear-gradient(145deg, #ffb35c, #ff7a3d 55%, #b33f1c);
+}
+
+.option-title {
+  display: block;
+  font-size: 20px;
+  line-height: 25px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.option-text {
+  display: block;
+  margin-top: 4px;
+  color: var(--label-2);
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.option-meta {
+  display: block;
+  margin-top: 8px;
+  color: var(--tint);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.step-caption {
+  margin-bottom: 6px;
+  color: var(--tint);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.time-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.time-select select {
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: var(--label);
+  font-size: 17px;
+  text-align: right;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.time-select select:focus {
+  outline: none;
+}
+
+.time-select select:disabled,
+.time-select .colon.disabled {
+  color: var(--label-3);
+}
+
+.time-select .colon {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.app-mark.warm {
+  background: linear-gradient(145deg, #ffb35c, #ff7a3d 55%, #b33f1c);
+  box-shadow: 0 10px 28px rgba(255, 122, 61, 0.3);
+}
+
+.time-select select + select {
+  margin-left: 6px;
+}
